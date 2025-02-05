@@ -253,7 +253,7 @@ int main(int argc, char **argv)
             Q_UNREACHABLE();
         }
     });
-    view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma-keyboard/main.qml")));
+    view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma/keyboard/main.qml")));
 
     return application.exec();
 }

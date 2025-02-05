@@ -13,4 +13,4 @@ make && make install
 
 ## Troubleshooting
 
-If the Virtual Keyboard does not show up add KWIN_IM_SHOW_ALWAYS=1 to kwin's environment variables.
+If the Virtual Keyboard does not show up add `KWIN_IM_SHOW_ALWAYS=1` to kwin's environment variables.
