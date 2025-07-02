@@ -1072,25 +1072,17 @@ KeyboardStyle {
         }
     }
 
-    popupListBackground: Item {
-        Rectangle {
-            width: parent.width
-            height: parent.height
-            color: popupBackgroundColor
-            border {
-                width: 1
-                color: popupBorderColor
-            }
+    popupListBackground: Rectangle {
+        color: popupBackgroundColor
+        border {
+            width: 1
+            color: popupBorderColor
         }
     }
 
-    popupListAdd: Transition {
-        // NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 200 }
-    }
+    popupListAdd: Transition {}
 
-    popupListRemove: Transition {
-        // NumberAnimation { property: "opacity"; to: 0; duration: 200 }
-    }
+    popupListRemove: Transition {}
 
     languagePopupListEnabled: true
 
