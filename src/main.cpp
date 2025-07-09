@@ -6,6 +6,7 @@
 
 #include <KAboutData>
 #include <KLocalizedString>
+#include <KConfigWatcher>
 
 #include <QCommandLineParser>
 #include <QGuiApplication>
@@ -26,6 +27,8 @@
 #include "inputplugin.h"
 #include "qwaylandinputpanelshellintegration_p.h"
 #include "qwaylandinputpanelsurface_p.h"
+#include "plasmakeyboardsettings.h"
+#include "vibration.h"
 
 Q_GLOBAL_STATIC(InputMethod, s_im)
 
@@ -282,7 +285,23 @@ int main(int argc, char **argv)
         aboutData.processCommandLine(&parser);
     }
 
+    // Listen to config updates from kcm, and reparse
+    auto watcher = KConfigWatcher::create(PlasmaKeyboardSettings::self()->sharedConfig());
+    QObject::connect(watcher.get(),
+        static_cast<void (KConfigWatcher::*)(const KConfigGroup &, const QByteArrayList &)>(&KConfigWatcher::configChanged),
+        &application,
+        [](const KConfigGroup &, const QByteArrayList &) {
+            PlasmaKeyboardSettings::self()->sharedConfig()->reparseConfiguration();
+            PlasmaKeyboardSettings::self()->load();
+        });
+
+    Vibration vibration;
+
     qmlRegisterType<InputThing>("org.kde.plasma.keyboard", 1, 0, "InputThing");
+    qmlRegisterSingletonInstance<PlasmaKeyboardSettings>("org.kde.plasma.keyboard", 1, 0,
+        "PlasmaKeyboardSettings", PlasmaKeyboardSettings::self());
+    qmlRegisterSingletonInstance<Vibration>("org.kde.plasma.keyboard", 1, 0,
+        "Vibration", &vibration);
 
     QQmlApplicationEngine view;
     QObject::connect(&view, &QQmlApplicationEngine::objectCreated, &application, [] (QObject *object) {

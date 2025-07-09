@@ -11,6 +11,8 @@ import QtQuick.Window
 
 import org.kde.kirigami as Kirigami
 
+import org.kde.plasma.keyboard
+
 KeyboardStyle {
     id: currentStyle
     readonly property bool compactSelectionList: [InputEngine.InputMode.Pinyin, InputEngine.InputMode.Cangjie, InputEngine.InputMode.Zhuyin].indexOf(InputContext.inputEngine.inputMode) !== -1
@@ -18,6 +20,8 @@ KeyboardStyle {
     readonly property real keyBackgroundMargin: Math.round(8 * scaleHint)
     readonly property real keyContentMargin: Math.round(40 * scaleHint)
     readonly property real keyIconScale: scaleHint * 0.8
+
+    property url soundEffect: PlasmaKeyboardSettings.soundEnabled ? Qt.resolvedUrl('qrc:///sounds/keyboard_tick2_quiet.wav') : '';
 
     Kirigami.Theme.inherit: false
     Kirigami.Theme.colorSet: Kirigami.Theme.Window
@@ -58,6 +62,12 @@ KeyboardStyle {
     onInputLocaleChanged: {
         inputLocaleIndicatorOpacity = 1.0
         inputLocaleIndicatorHighlightTimer.restart()
+    }
+
+    function keyPressedChanged(pressed: bool) {
+        if (pressed & PlasmaKeyboardSettings.vibrationEnabled) {
+            Vibration.vibrate(PlasmaKeyboardSettings.vibrationMs);
+        }
     }
 
     property Component component_settingsIcon: Component {
@@ -101,6 +111,15 @@ KeyboardStyle {
 
     keyPanel: KeyPanel {
         id: keyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: keyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(keyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: keyBackground
             radius: buttonRadius
@@ -190,6 +209,15 @@ KeyboardStyle {
 
     backspaceKeyPanel: KeyPanel {
         id: backspaceKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: backspaceKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(backspaceKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: backspaceKeyBackground
             radius: buttonRadius
@@ -234,6 +262,15 @@ KeyboardStyle {
 
     languageKeyPanel: KeyPanel {
         id: languageKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: languageKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(languageKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: languageKeyBackground
             radius: buttonRadius
@@ -278,6 +315,15 @@ KeyboardStyle {
 
     enterKeyPanel: KeyPanel {
         id: enterKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: enterKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(enterKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: enterKeyBackground
             radius: buttonRadius
@@ -373,6 +419,15 @@ KeyboardStyle {
 
     hideKeyPanel: KeyPanel {
         id: hideKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: hideKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(hideKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: hideKeyBackground
             radius: buttonRadius
@@ -416,6 +471,15 @@ KeyboardStyle {
 
     shiftKeyPanel: KeyPanel {
         id: shiftKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: shiftKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(shiftKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: shiftKeyBackground
             radius: buttonRadius
@@ -481,6 +545,15 @@ KeyboardStyle {
 
     spaceKeyPanel: KeyPanel {
         id: spaceKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: spaceKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(spaceKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: spaceKeyBackground
             radius: buttonRadius
@@ -523,6 +596,15 @@ KeyboardStyle {
 
     symbolKeyPanel: KeyPanel {
         id: symbolKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: symbolKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(symbolKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: symbolKeyBackground
             radius: buttonRadius
@@ -575,6 +657,15 @@ KeyboardStyle {
 
     modeKeyPanel: KeyPanel {
         id: modeKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: modeKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(modeKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: modeKeyBackground
             radius: buttonRadius
@@ -640,6 +731,15 @@ KeyboardStyle {
 
     handwritingKeyPanel: KeyPanel {
         id: handwritingKeyPanel
+        soundEffect: currentStyle.soundEffect
+
+        Connections {
+            target: handwritingKeyPanel.control
+            function onPressedChanged() {
+                currentStyle.keyPressedChanged(handwritingKeyPanel.control.pressed);
+            }
+        }
+
         Rectangle {
             id: hwrKeyBackground
             radius: buttonRadius
