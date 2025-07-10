@@ -6,8 +6,9 @@ ecm_add_qtwayland_client_protocol(plasma-keyboard PROTOCOL "${Wayland_DATADIR}/w
 
 target_sources(plasma-keyboard PRIVATE
     main.cpp
-    inputpanelwindow.cpp
+    inputlisteneritem.cpp
     inputmethod.cpp
+    inputpanelwindow.cpp
     inputplugin.cpp
     qwaylandinputpanelshellintegration.cpp
     qwaylandinputpanelsurface.cpp
