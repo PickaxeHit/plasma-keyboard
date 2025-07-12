@@ -8,6 +8,7 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Styles
 import QtQuick.Controls as QQC2
 import QtQuick.Window
+import QtQuick.Effects
 
 import org.kde.kirigami as Kirigami
 
@@ -26,23 +27,24 @@ KeyboardStyle {
 
     readonly property string inputLocale: InputContext.locale
     property color primaryColor: Kirigami.Theme.backgroundColor
-    property color primaryLightColor: Kirigami.Theme.alternateBackgroundColor
-    property color primaryDarkColor: Kirigami.Theme.alternateBackgroundColor
+    property color primaryLightColor: Qt.lighter(primaryColor, 1.3)
+    property color primaryDarkColor: Qt.darker(primaryColor, 1.3)
     property color textOnPrimaryColor: Kirigami.Theme.textColor
     property color secondaryColor: Kirigami.Theme.backgroundColor
-    property color secondaryLightColor: Kirigami.Theme.alternateBackgroundColor
-    property color secondaryDarkColor: Kirigami.Theme.alternateBackgroundColor
+    property color secondaryLightColor: Qt.lighter(secondaryColor, 1.3)
+    property color secondaryDarkColor: Qt.darker(secondaryColor, 1.3)
     property color textOnSecondaryColor: Kirigami.Theme.textColor
 
     property color keyboardBackgroundColor: primaryColor
-    property color normalKeyBackgroundColor: primaryDarkColor
+    property color normalKeyBackgroundColor: primaryLightColor
+    property color normalKeyPressedBackgroundColor: primaryDarkColor
     property color highlightedKeyBackgroundColor: primaryLightColor
     property color capsLockKeyAccentColor: secondaryColor
     property color modeKeyAccentColor: textOnPrimaryColor
     property color keyTextColor: textOnPrimaryColor
     property color keySmallTextColor: textOnPrimaryColor
-    property color popupBackgroundColor: secondaryColor
-    property color popupBorderColor: secondaryLightColor
+    property color popupBackgroundColor: secondaryLightColor
+    property color popupBorderColor: secondaryDarkColor
     property color popupTextColor: textOnSecondaryColor
     property color popupHighlightColor: secondaryLightColor
     property color selectionListTextColor: textOnPrimaryColor
@@ -73,7 +75,7 @@ KeyboardStyle {
     keyboardDesignWidth: {
         if (Screen.width < 500) {
             // Phone mode
-            return 1000;
+            return 1300;
         } else if (Screen.width < 1200) {
             // Wider
             return 1600;
@@ -84,7 +86,7 @@ KeyboardStyle {
     keyboardDesignHeight: {
         if (Screen.width < 500) {
             // Phone mode
-            return 700;
+            return 800;
         } else if (Screen.width < 1200) {
             // Wider
             return 600;
@@ -104,12 +106,13 @@ KeyboardStyle {
     keyPanel: BreezeKeyPanel {
         id: keyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: keyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: keyPanel
             anchors.margins: keyBackgroundMargin
+
             QQC2.Label {
                 id: keySmallText
                 text: control.smallText
@@ -137,11 +140,7 @@ KeyboardStyle {
                 color: keyTextColor
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: control.displayText.length > 1 ? Text.AlignVCenter : Text.AlignBottom
-                anchors.fill: parent
-                anchors.leftMargin: keyContentMargin
-                anchors.topMargin: keyContentMargin
-                anchors.rightMargin: keyContentMargin
-                anchors.bottomMargin: keyContentMargin
+                anchors.centerIn: parent
                 font {
                     family: fontFamily
                     weight: Font.Light
@@ -165,18 +164,6 @@ KeyboardStyle {
         }
         states: [
             State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: keyBackground
-                    opacity: 0.75
-                }
-                PropertyChanges {
-                    target: keyText
-                    opacity: 0.5
-                }
-            },
-            State {
                 name: "disabled"
                 when: !control.enabled
                 PropertyChanges {
@@ -194,10 +181,10 @@ KeyboardStyle {
     backspaceKeyPanel: BreezeKeyPanel {
         id: backspaceKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: backspaceKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: backspaceKeyPanel
             anchors.margins: keyBackgroundMargin
             Kirigami.Icon {
@@ -209,18 +196,6 @@ KeyboardStyle {
             }
         }
         states: [
-            State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: backspaceKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: backspaceKeyIcon
-                    opacity: 0.6
-                }
-            },
             State {
                 name: "disabled"
                 when: !control.enabled
@@ -239,10 +214,10 @@ KeyboardStyle {
     languageKeyPanel: BreezeKeyPanel {
         id: languageKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: languageKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: languageKeyPanel
             anchors.margins: keyBackgroundMargin
 
@@ -254,18 +229,6 @@ KeyboardStyle {
             }
         }
         states: [
-            State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: languageKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: languageKeyIcon
-                    opacity: 0.75
-                }
-            },
             State {
                 name: "disabled"
                 when: !control.enabled
@@ -284,10 +247,10 @@ KeyboardStyle {
     enterKeyPanel: BreezeKeyPanel {
         id: enterKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: enterKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: enterKeyPanel
             anchors.margins: keyBackgroundMargin
             Kirigami.Icon {
@@ -343,22 +306,6 @@ KeyboardStyle {
         }
         states: [
             State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: enterKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: enterKeyIcon
-                    opacity: 0.6
-                }
-                PropertyChanges {
-                    target: enterKeyText
-                    opacity: 0.6
-                }
-            },
-            State {
                 name: "disabled"
                 when: !control.enabled
                 PropertyChanges {
@@ -380,10 +327,10 @@ KeyboardStyle {
     hideKeyPanel: BreezeKeyPanel {
         id: hideKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: hideKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: hideKeyPanel
             anchors.margins: keyBackgroundMargin
             Kirigami.Icon {
@@ -394,18 +341,6 @@ KeyboardStyle {
             }
         }
         states: [
-            State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: hideKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: hideKeyIcon
-                    opacity: 0.6
-                }
-            },
             State {
                 name: "disabled"
                 when: !control.enabled
@@ -424,10 +359,10 @@ KeyboardStyle {
     shiftKeyPanel: BreezeKeyPanel {
         id: shiftKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: shiftKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: shiftKeyPanel
             anchors.margins: keyBackgroundMargin
             Kirigami.Icon {
@@ -461,18 +396,6 @@ KeyboardStyle {
         }
         states: [
             State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: shiftKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: shiftKeyIcon
-                    opacity: 0.6
-                }
-            },
-            State {
                 name: "disabled"
                 when: !control.enabled
                 PropertyChanges {
@@ -490,10 +413,10 @@ KeyboardStyle {
     spaceKeyPanel: BreezeKeyPanel {
         id: spaceKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: spaceKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: spaceKeyPanel
             anchors.margins: keyBackgroundMargin
             QQC2.Label {
@@ -512,14 +435,6 @@ KeyboardStyle {
         }
         states: [
             State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: spaceKeyBackground
-                    opacity: 0.80
-                }
-            },
-            State {
                 name: "disabled"
                 when: !control.enabled
                 PropertyChanges {
@@ -533,10 +448,10 @@ KeyboardStyle {
     symbolKeyPanel: BreezeKeyPanel {
         id: symbolKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: symbolKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: symbolKeyPanel
             anchors.margins: keyBackgroundMargin
             QQC2.Label {
@@ -557,18 +472,6 @@ KeyboardStyle {
         }
         states: [
             State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: symbolKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: symbolKeyText
-                    opacity: 0.6
-                }
-            },
-            State {
                 name: "disabled"
                 when: !control.enabled
                 PropertyChanges {
@@ -586,10 +489,10 @@ KeyboardStyle {
     modeKeyPanel: BreezeKeyPanel {
         id: modeKeyPanel
 
-        Rectangle {
+        BreezeKeyPanelBackground {
             id: modeKeyBackground
             radius: buttonRadius
-            color: control && control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor
+            color: control && control.pressed ? normalKeyPressedBackgroundColor : (control.highlighted ? highlightedKeyBackgroundColor : normalKeyBackgroundColor)
             anchors.fill: modeKeyPanel
             anchors.margins: keyBackgroundMargin
             QQC2.Label {
@@ -622,18 +525,6 @@ KeyboardStyle {
             }
         }
         states: [
-            State {
-                name: "pressed"
-                when: control.pressed
-                PropertyChanges {
-                    target: modeKeyBackground
-                    opacity: 0.80
-                }
-                PropertyChanges {
-                    target: modeKeyText
-                    opacity: 0.6
-                }
-            },
             State {
                 name: "disabled"
                 when: !control.enabled
@@ -712,6 +603,12 @@ KeyboardStyle {
             readonly property int largeTextHeight: Math.round(height / 3 * 2)
             readonly property int smallTextHeight: Math.round(height / 3)
             readonly property int smallTextMargin: Math.round(3 * scaleHint)
+
+            border {
+                width: 1
+                color: popupBorderColor
+            }
+
             QQC2.Label {
                 id: characterPreviewText
                 color: popupTextColor
