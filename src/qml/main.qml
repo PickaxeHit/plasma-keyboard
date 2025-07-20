@@ -15,6 +15,16 @@ InputPanelWindow {
     interactiveHeight: inputPanel.implicitHeight > 0 ? inputPanel.implicitHeight : 100
     color: 'transparent'
 
+    onVisibleChanged: {
+        if (!visible) {
+            // Reset keyboard navigation when hidden
+            // Note: keyboard property is internal Qt API
+            if (inputPanel.keyboard.navigationModeActive) {
+                inputPanel.keyboard.navigationModeActive = false;
+            }
+        }
+    }
+
     InputListenerItem {
         id: thing
         focus: true
