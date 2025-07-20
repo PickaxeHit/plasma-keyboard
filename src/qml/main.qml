@@ -30,6 +30,8 @@ InputPanelWindow {
         focus: true
         engine: inputPanel.InputContext.inputEngine
 
+        keyboardNavigationActive: inputPanel.keyboard.navigationModeActive
+
         onKeyNavigationPressed: (key) => {
             // HACK: invoke the Qt VirtualKeyboard keyboard navigation feature ourselves
             // See https://github.com/qt/qtvirtualkeyboard/blob/6d810ac41df96f1ad984f56e17f16860bec2abbf/src/virtualkeyboard/qvirtualkeyboardinputcontext_p.h#L110
