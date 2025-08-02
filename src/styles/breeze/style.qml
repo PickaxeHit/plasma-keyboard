@@ -74,14 +74,7 @@ KeyboardStyle {
         }
         return 6 / keyboardDesignWidth;
     }
-    keyboardRelativeRightMargin: {
-        if (keyboardDesignWidth > keyboardDesignHeight * maxWidthToHeightRatio) {
-            // Cap keyboard width if it's too wide
-            const extraWidth = keyboardDesignWidth - (keyboardDesignHeight * maxWidthToHeightRatio);
-            return (extraWidth / 2) / keyboardDesignWidth;
-        }
-        return 6 / keyboardDesignWidth;
-    }
+    keyboardRelativeRightMargin: keyboardRelativeLeftMargin
     keyboardRelativeTopMargin: 6 / keyboardDesignHeight
     keyboardRelativeBottomMargin: 6 / keyboardDesignHeight
 
