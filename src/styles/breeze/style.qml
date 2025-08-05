@@ -45,8 +45,8 @@ KeyboardStyle {
         }
     }
 
-    // Always have the keyboard panel be 30% of the screen height
-    readonly property real targetKeyboardHeight: Screen.height * 0.3
+    // Always have the keyboard panel be 30% of the screen height, or 150px (whichever is larger)
+    readonly property real targetKeyboardHeight: Math.max(Screen.height * 0.3, 150)
     readonly property real widthPctOfHeight: Screen.width / targetKeyboardHeight
 
     // Calculate width based on the height so that the keyboard height is always targetKeyboardHeight
@@ -63,8 +63,8 @@ KeyboardStyle {
         return 700;
     }
 
-    // The width should never be > 4 times height
-    readonly property real maxWidthToHeightRatio: 4
+    // The width should never be > 6 times height
+    readonly property real maxWidthToHeightRatio: 6
 
     keyboardRelativeLeftMargin: {
         if (keyboardDesignWidth > keyboardDesignHeight * maxWidthToHeightRatio) {
