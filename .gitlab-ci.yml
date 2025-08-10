@@ -11,3 +11,20 @@ include:
       - /gitlab-templates/yaml-lint.yml
       - /gitlab-templates/flatpak.yml
       - /gitlab-templates/linux-qt6-next.yml
+
+# Ensure i18n is not used with single quotes
+check-i18n-single-quote:
+  image:
+    name: debian:latest
+    entrypoint: [""]
+  tags:
+    - Linux
+  stage: validate
+  script:
+    - echo "Checking for i18n* usage in QML files to make sure single quotes aren't used..."
+    - if grep -RIn --include="*.qml" -E "i18n(c(p)?|d(c?p)?|n(p)?)?\('" .; then
+        echo "Found single quote i18n* usage in QML.";
+        exit 1;
+      else
+        echo "No single quote i18n* usage found in QML.";
+      fi
