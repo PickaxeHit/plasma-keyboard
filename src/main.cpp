@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     QObject::connect(&view, &QQmlApplicationEngine::objectCreated, &application, [] (QObject *object) {
         auto window = qobject_cast<QWindow*>(object);
         if (!initPanelIntegration(window)) {
-            QTextStream(stderr) << "Cannot run plasma-keyboard standalone, you can enable it on systemsettings.";
+            QTextStream(stderr) << "Cannot run plasma-keyboard standalone. You can enable it in Plasma’s System Settings app, on the “Virtual Keyboard” page.";
             exit(1);
         }
     });
