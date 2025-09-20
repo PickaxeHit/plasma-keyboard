@@ -120,8 +120,8 @@ int main(int argc, char **argv)
     QObject::connect(&view, &QQmlApplicationEngine::objectCreated, &application, [] (QObject *object) {
         auto window = qobject_cast<QWindow*>(object);
         if (!initPanelIntegration(window)) {
-            QCoreApplication::instance()->exit(1);
-            Q_UNREACHABLE();
+            QTextStream(stderr) << "Cannot run plasma-keyboard standalone, you can enable it on systemsettings.";
+            exit(1);
         }
     });
     view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma/keyboard/main.qml")));
