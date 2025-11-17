@@ -13,7 +13,7 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.ApplicationWindow {
     id: languageDialog
-    title: i18n("Switch Language")
+    title: i18nc("@title", "Switch Language")
 
     signal showSettings();
 
@@ -30,7 +30,7 @@ Kirigami.ApplicationWindow {
     }
 
     pageStack.initialPage: Kirigami.ScrollablePage {
-        title: i18n("Languages")
+        title: i18nc("@title", "Languages")
         actions: [
             Action {
                 icon.name: "configure"
