@@ -6,6 +6,8 @@ import QtQuick.Layouts
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 
+import org.kde.plasma.keyboard
+
 KeyboardLayout {
     function createInputMethod() {
         return Qt.createQmlObject('import QtQuick; import QtQuick.VirtualKeyboard.Plugins; PinyinInputMethod {}', parent, "inputMethod.qml")
@@ -170,7 +172,7 @@ KeyboardLayout {
             smallTextVisible: keyboard.isFunctionPopupListAvailable()
             highlighted: true
         }
-        SpaceKey {
+        CursorMovingSpaceKey {
         }
         Key {
             key: Qt.Key_Period

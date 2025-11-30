@@ -165,7 +165,7 @@ KeyboardLayoutLoader {
                     smallTextVisible: keyboard.isFunctionPopupListAvailable()
                     highlighted: true
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: Qt.Key_Period
@@ -340,7 +340,7 @@ KeyboardLayoutLoader {
                     smallTextVisible: keyboard.isFunctionPopupListAvailable()
                     highlighted: true
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: 0x2026

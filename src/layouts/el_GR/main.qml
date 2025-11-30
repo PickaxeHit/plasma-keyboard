@@ -6,6 +6,8 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 import QtQuick.Layouts
 
+import org.kde.plasma.keyboard
+
 KeyboardLayoutLoader {
     sharedLayouts: ['symbols']
     sourceComponent: InputContext.inputEngine.inputMode === InputEngine.InputMode.Greek ? greekLayout : latinLayout
@@ -154,7 +156,7 @@ KeyboardLayoutLoader {
                     weight: normalKeyWidth
                     Layout.fillWidth: false
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: Qt.Key_Period
@@ -357,7 +359,7 @@ KeyboardLayoutLoader {
                     weight: normalKeyWidth
                     Layout.fillWidth: false
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: Qt.Key_Period
