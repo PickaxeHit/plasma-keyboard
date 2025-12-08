@@ -8,181 +8,171 @@ import QtQuick.Layouts
 
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
-    Layout.maximumHeight: 165
     keyWeight: 160
     readonly property real normalKeyWidth: normalKey.width
     readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
+    readonly property real wideness: parent.width / parent.height
     KeyboardRow {
-        Layout.maximumHeight:52
-        Item{
-            Layout.maximumWidth:16
-            Layout.minimumWidth:16
-        }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_Q
             text: "q"
         }
         Key {
-            Layout.maximumWidth: 52
             id: normalKey
             key: Qt.Key_W
             text: "w"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_E
             text: "e"
             alternativeKeys: "ēęėëeêèé"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_R
             text: "r"
-        }
-        Item{
-            Layout.minimumWidth: 16
-            Layout.fillWidth: true
+            // text: aspectRatio
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_T
             text: "t"
         }
+        Item{
+            Layout.minimumWidth: 16
+            Layout.preferredWidth: {
+                if (wideness > 2){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + 10*10*factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
+        }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_Y
             text: "y"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_U
             text: "u"
             alternativeKeys: "üûuùú"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_I
             text: "i"
             alternativeKeys: "ïįîiìí"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_O
             text: "o"
             alternativeKeys: "öõôoòó"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_P
             text: "p"
         }
-        Item{
-            Layout.maximumWidth:16
-            Layout.minimumWidth:16
-        }
     }
     KeyboardRow {
-        Layout.maximumHeight:52
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_A
             text: "a"
             alternativeKeys: "äãaâàá"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_S
             text: "s"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_D
             text: "d"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_F
             text: "f"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_G
             text: "g"
         }
         Item{
             Layout.minimumWidth: 16
-            Layout.fillWidth: true
+            Layout.preferredWidth: {
+                if (wideness > 2){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + 10*10*factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_H
             text: "h"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_J
             text: "j"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_K
             text: "k"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_L
             text: "l"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_Ccedilla
             text: "ç"
         }
     }
     KeyboardRow {
-        Layout.maximumHeight:52
         ShiftKey {
             weight: functionKeyWidth
             Layout.fillWidth: false
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_Z
             text: "z"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_X
             text: "x"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_C
             text: "c"
             alternativeKeys: "čcć"
         }
         Item{
             Layout.minimumWidth: 16
-            Layout.fillWidth: true
+            Layout.preferredWidth: {
+                if (wideness > 2){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + 10*10*factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_V
             text: "v"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_B
             text: "b"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_N
             text: "n"
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_M
             text: "m"
         }
@@ -192,7 +182,6 @@ KeyboardLayout {
         }
     }
     KeyboardRow {
-        Layout.maximumHeight:52
         SymbolModeKey {
             weight: functionKeyWidth
             Layout.fillWidth: false
@@ -202,7 +191,6 @@ KeyboardLayout {
             Layout.fillWidth: false
         }
         Key {
-            Layout.maximumWidth: 52
             key: Qt.Key_Comma
             weight: normalKeyWidth
             Layout.fillWidth: false
@@ -225,7 +213,6 @@ KeyboardLayout {
             highlighted: true
         }
         HideKeyboardKey {
-            Layout.maximumWidth: 52
             weight: normalKeyWidth
             Layout.fillWidth: false
         }
