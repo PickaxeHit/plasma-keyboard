@@ -6,8 +6,6 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 import QtQuick.Layouts
 
-
-
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
     Layout.maximumHeight: 165
