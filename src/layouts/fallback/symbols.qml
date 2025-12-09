@@ -6,6 +6,8 @@ import QtQuick.Layouts
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 
+import org.kde.plasma.keyboard
+
 KeyboardLayoutLoader {
     property bool secondPage
     onVisibleChanged: if (!visible) secondPage = false
@@ -16,6 +18,7 @@ KeyboardLayoutLoader {
             keyWeight: 160
             readonly property real normalKeyWidth: normalKey.width
             readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
+            readonly property real wideness: parent.width / parent.height
             KeyboardRow {
                 Key {
                     key: Qt.Key_1
@@ -37,6 +40,19 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_5
                     text: "5"
+                }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
                 }
                 Key {
                     key: Qt.Key_6
@@ -79,6 +95,19 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_Asterisk
                     text: "*"
+                }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
                 }
                 Key {
                     key: Qt.Key_Underscore
@@ -123,6 +152,19 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_Apostrophe
                     text: "'"
+                }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
                 }
                 Key {
                     key: Qt.Key_Colon
@@ -188,6 +230,7 @@ KeyboardLayoutLoader {
             keyWeight: 160
             readonly property real normalKeyWidth: normalKey.width
             readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
+            readonly property real wideness: parent.width / parent.height
             KeyboardRow {
                 Key {
                     key: Qt.Key_AsciiTilde
@@ -209,6 +252,19 @@ KeyboardLayoutLoader {
                 Key {
                     key: 0x221A
                     text: "√"
+                }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
                 }
                 Key {
                     key: Qt.Key_division
@@ -253,6 +309,19 @@ KeyboardLayoutLoader {
                     key: 0xA5
                     text: "¥"
                 }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
+                }
                 Key {
                     key: Qt.Key_AsciiCircum
                     text: "^"
@@ -296,6 +365,19 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_guillemotright
                     text: '»'
+                }
+                Item{
+                    Layout.minimumWidth: 0
+                    Layout.preferredWidth: {
+                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                            var factor = wideness - 2
+                            return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                        }
+                        else{
+                            return 0
+                        }
+                    }
                 }
                 Key {
                     key: Qt.Key_Semicolon
