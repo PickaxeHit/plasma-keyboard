@@ -22,8 +22,7 @@ KeyboardLayout {
         Key {
             id: normalKey
             key: Qt.Key_W
-            // text: "w"
-            text: PlasmaKeyboardSettings.vibrationEnabled ? "on" : "off"
+            text: "w"
         }
         Key {
             key: Qt.Key_E
