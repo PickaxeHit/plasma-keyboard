@@ -18,12 +18,8 @@
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <qpa/qwindowsysteminterface.h>
 
-#include "inputlisteneritem.h"
-#include "inputpanelwindow.h"
 #include "qwaylandinputpanelshellintegration_p.h"
-#include "qwaylandinputpanelsurface_p.h"
 #include "plasmakeyboardsettings.h"
-#include "vibration.h"
 
 static bool initPanelIntegration(QWindow *window)
 {
