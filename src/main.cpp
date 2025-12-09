@@ -5,10 +5,13 @@
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 */
 
+#include "plasmakeyboardsettings.h"
+#include "qwaylandinputpanelshellintegration_p.h"
+
 #include <KAboutData>
-#include <KLocalizedString>
-#include <KLocalizedQmlContext>
 #include <KConfigWatcher>
+#include <KLocalizedQmlContext>
+#include <KLocalizedString>
 
 #include <QCommandLineParser>
 #include <QGuiApplication>
@@ -17,9 +20,6 @@
 #include <QWindow>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <qpa/qwindowsysteminterface.h>
-
-#include "qwaylandinputpanelshellintegration_p.h"
-#include "plasmakeyboardsettings.h"
 
 static bool initPanelIntegration(QWindow *window)
 {
