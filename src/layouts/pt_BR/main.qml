@@ -6,6 +6,8 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 import QtQuick.Layouts
 
+import org.kde.plasma.keyboard
+
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
     keyWeight: 160
@@ -20,7 +22,8 @@ KeyboardLayout {
         Key {
             id: normalKey
             key: Qt.Key_W
-            text: "w"
+            // text: "w"
+            text: PlasmaKeyboardSettings.vibrationEnabled ? "on" : "off"
         }
         Key {
             key: Qt.Key_E
@@ -37,11 +40,11 @@ KeyboardLayout {
             text: "t"
         }
         Item{
-            Layout.minimumWidth: 16
+            Layout.minimumWidth: 0
             Layout.preferredWidth: {
-                if (wideness > 2){
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
                     var factor = wideness - 2
-                    return (12 * (factor **2) + 10*10*factor)
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
 
                 }
                 else{
@@ -96,11 +99,11 @@ KeyboardLayout {
             text: "g"
         }
         Item{
-            Layout.minimumWidth: 16
+            Layout.minimumWidth: 0
             Layout.preferredWidth: {
-                if (wideness > 2){
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
                     var factor = wideness - 2
-                    return (12 * (factor **2) + 10*10*factor)
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
 
                 }
                 else{
@@ -148,11 +151,11 @@ KeyboardLayout {
             alternativeKeys: "čcć"
         }
         Item{
-            Layout.minimumWidth: 16
+            Layout.minimumWidth: 0
             Layout.preferredWidth: {
-                if (wideness > 2){
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
                     var factor = wideness - 2
-                    return (12 * (factor **2) + 10*10*factor)
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
 
                 }
                 else{
