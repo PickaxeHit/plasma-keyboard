@@ -1,5 +1,6 @@
 /*
     SPDX-FileCopyrightText: 2024 Aleix Pol i Gonzalez <aleixpol@kde.org>
+    SPDX-FileCopyrightText: 2025 Kristen McWilliam <kristen@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 */
@@ -112,7 +113,6 @@ int main(int argc, char **argv)
 
     Vibration vibration;
 
-    qmlRegisterType<InputListenerItem>("org.kde.plasma.keyboard", 1, 0, "InputListenerItem");
     qmlRegisterSingletonInstance<PlasmaKeyboardSettings>("org.kde.plasma.keyboard", 1, 0,
         "PlasmaKeyboardSettings", PlasmaKeyboardSettings::self());
     qmlRegisterSingletonInstance<Vibration>("org.kde.plasma.keyboard", 1, 0,
