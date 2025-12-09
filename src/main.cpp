@@ -113,7 +113,6 @@ int main(int argc, char **argv)
     Vibration vibration;
 
     qmlRegisterType<InputListenerItem>("org.kde.plasma.keyboard", 1, 0, "InputListenerItem");
-    qmlRegisterType<InputPanelWindow>("org.kde.plasma.keyboard", 1, 0, "InputPanelWindow");
     qmlRegisterSingletonInstance<PlasmaKeyboardSettings>("org.kde.plasma.keyboard", 1, 0,
         "PlasmaKeyboardSettings", PlasmaKeyboardSettings::self());
     qmlRegisterSingletonInstance<Vibration>("org.kde.plasma.keyboard", 1, 0,
