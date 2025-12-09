@@ -104,6 +104,23 @@ void PlasmaKeyboardKcm::setKeyboardNavigationEnabled(bool keyboardNavigationEnab
     setNeedsSave(true);
 }
 
+bool PlasmaKeyboardKcm::splitKeyboardEnabled() const
+{
+    return m_splitKeyboardEnabled;
+}
+
+void PlasmaKeyboardKcm::setSplitKeyboardEnabled(bool splitKeyboardEnabled)
+{
+    if(splitKeyboardEnabled == m_splitKeyboardEnabled){
+        return;
+    }
+
+    m_splitKeyboardEnabled = splitKeyboardEnabled;
+    Q_EMIT splitKeyboardEnabledChanged();
+
+    setNeedsSave(true);
+}
+
 bool PlasmaKeyboardKcm::isSaveNeeded() const
 {
     return m_saveNeeded;
@@ -117,6 +134,7 @@ void PlasmaKeyboardKcm::load()
     m_enabledLocales = PlasmaKeyboardSettings::self()->enabledLocales();
     Q_EMIT enabledLocalesChanged();
     setKeyboardNavigationEnabled(PlasmaKeyboardSettings::self()->keyboardNavigationEnabled());
+    setSplitKeyboardEnabled(PlasmaKeyboardSettings::self()->splitKeyboardEnabled());
 
     setNeedsSave(false);
 }
@@ -127,6 +145,7 @@ void PlasmaKeyboardKcm::save()
     PlasmaKeyboardSettings::self()->setVibrationEnabled(m_vibrationEnabled);
     PlasmaKeyboardSettings::self()->setEnabledLocales(m_enabledLocales);
     PlasmaKeyboardSettings::self()->setKeyboardNavigationEnabled(m_keyboardNavigationEnabled);
+    PlasmaKeyboardSettings::self()->setSplitKeyboardEnabled(m_splitKeyboardEnabled);
     PlasmaKeyboardSettings::self()->save();
 
     setNeedsSave(false);
