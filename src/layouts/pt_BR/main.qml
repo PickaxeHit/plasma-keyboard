@@ -38,19 +38,22 @@ KeyboardLayout {
             key: Qt.Key_T
             text: "t"
         }
-        Item{
-            Layout.minimumWidth: 0
-            Layout.preferredWidth: {
-                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                    var factor = wideness - 2
-                    return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                }
-                else{
-                    return 0
-                }
+        // Item{
+        //     Layout.minimumWidth: 0
+        //     Layout.preferredWidth: {
+        //         if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+        //             var factor = wideness - 2
+        //             return (12 * (factor **2) + parent.children.length * 10 *factor)
+        //
+        //         }
+        //         else{
+        //             return 0
+        //         }
+        //     }
+        // }
+            KeyboardLayoutParts.LineGap{
+                aspectRatio: wideness
             }
-        }
         Key {
             key: Qt.Key_Y
             text: "y"
