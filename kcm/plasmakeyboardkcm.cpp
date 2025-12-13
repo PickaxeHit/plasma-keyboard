@@ -111,7 +111,7 @@ bool PlasmaKeyboardKcm::splitKeyboardEnabled() const
 
 void PlasmaKeyboardKcm::setSplitKeyboardEnabled(bool splitKeyboardEnabled)
 {
-    if (splitKeyboardEnabled == m_splitKeyboardEnabled){
+    if (splitKeyboardEnabled == m_splitKeyboardEnabled) {
         return;
     }
 
