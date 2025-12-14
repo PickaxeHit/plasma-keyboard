@@ -28,5 +28,9 @@
             <label>Whether the keyboard panel fills the screen width.</label>
             <default>true</default>
         </entry>
+        <entry key="rightClickShift" type="bool">
+            <label>Whether right-clicking on a key applies shift to the key.</label>
+            <default>false</default>
+        </entry>
     </group>
 </kcfg>

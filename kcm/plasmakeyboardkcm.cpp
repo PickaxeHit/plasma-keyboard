@@ -104,6 +104,23 @@ void PlasmaKeyboardKcm::setKeyboardNavigationEnabled(bool keyboardNavigationEnab
     setNeedsSave(true);
 }
 
+bool PlasmaKeyboardKcm::rightClickShift() const
+{
+    return m_rightClickShift;
+}
+
+void PlasmaKeyboardKcm::setRightClickShift(bool rightClickShift)
+{
+    if (rightClickShift == m_rightClickShift) {
+        return;
+    }
+
+    m_rightClickShift = rightClickShift;
+    Q_EMIT rightClickShiftChanged();
+
+    setNeedsSave(true);
+}
+
 bool PlasmaKeyboardKcm::isSaveNeeded() const
 {
     return m_saveNeeded;
@@ -117,6 +134,7 @@ void PlasmaKeyboardKcm::load()
     m_enabledLocales = PlasmaKeyboardSettings::self()->enabledLocales();
     Q_EMIT enabledLocalesChanged();
     setKeyboardNavigationEnabled(PlasmaKeyboardSettings::self()->keyboardNavigationEnabled());
+    setRightClickShift(PlasmaKeyboardSettings::self()->rightClickShift());
 
     setNeedsSave(false);
 }
@@ -127,6 +145,7 @@ void PlasmaKeyboardKcm::save()
     PlasmaKeyboardSettings::self()->setVibrationEnabled(m_vibrationEnabled);
     PlasmaKeyboardSettings::self()->setEnabledLocales(m_enabledLocales);
     PlasmaKeyboardSettings::self()->setKeyboardNavigationEnabled(m_keyboardNavigationEnabled);
+    PlasmaKeyboardSettings::self()->setRightClickShift(m_rightClickShift);
     PlasmaKeyboardSettings::self()->save();
 
     setNeedsSave(false);
