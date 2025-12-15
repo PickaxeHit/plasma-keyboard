@@ -19,12 +19,42 @@ InputPanelWindow {
     width: Screen.width
     color: 'transparent'
 
-    interactiveRegion: Qt.rect(
-        panelWrapper.x,
-        panelWrapper.y,
-        panelWrapper.width,
-        panelWrapper.height
-    )
+    // Map of base characters to their diacritic variants
+    property var diacriticsMap: ({
+                                     "a": ["á", "à", "â", "ä", "ã", "å", "ā", "ă", "ą"],
+                                     "c": ["ç", "ć", "č"],
+                                     "e": ["é", "è", "ê", "ë", "ē", "ė", "ę"],
+                                     "i": ["í", "ì", "î", "ï", "ī", "į"],
+                                     "n": ["ñ", "ń"],
+                                     "o": ["ó", "ò", "ô", "ö", "õ", "ō", "ø"],
+                                     "s": ["ś", "š", "ß"],
+                                     "u": ["ú", "ù", "û", "ü", "ū", "ů"],
+                                     "y": ["ý", "ÿ"],
+                                     "z": ["ź", "ż", "ž"],
+                                     "l": ["ł"],
+                                     "g": ["ğ"],
+                                     "r": ["ř"],
+                                     "t": ["ť"],
+                                     "d": ["ď"],
+                                     "h": ["ħ"]
+                                 })
+
+    function diacriticChoices(baseCharacter) {
+        if (!PlasmaKeyboardSettings.diacriticsPopupEnabled) {
+            return [];
+        }
+
+        const lower = baseCharacter.toLowerCase();
+        const choices = diacriticsMap[lower] || [];
+        if (choices.length === 0) {
+            return [];
+        }
+
+        if (lower === baseCharacter) {
+            return choices;
+        }
+        return choices.map((c) => c.toUpperCase());
+    }
 
     onVisibleChanged: {
         if (!visible) {
@@ -46,16 +76,54 @@ InputPanelWindow {
 
         keyboardNavigationActive: inputPanel.keyboard.navigationModeActive
 
+        onDiacriticsPopupRequested: (baseCharacter) => {
+                                        const options = diacriticChoices(baseCharacter);
+                                        if (options.length === 0) {
+                                            thing.commitDiacritic(baseCharacter);
+                                            return;
+                                        }
+
+                                        diacriticsPopup.show(baseCharacter, options);
+                                    }
+
+        onDiacriticsPopupCancelled: {
+            diacriticsPopup.close();
+        }
+
         onKeyNavigationPressed: (key) => {
-            // HACK: invoke the Qt VirtualKeyboard keyboard navigation feature ourselves
-            // See https://github.com/qt/qtvirtualkeyboard/blob/6d810ac41df96f1ad984f56e17f16860bec2abbf/src/virtualkeyboard/qvirtualkeyboardinputcontext_p.h#L110
-            inputPanel.InputContext.priv.navigationKeyPressed(key, false);
-        }
+                                    // HACK: invoke the Qt VirtualKeyboard keyboard navigation feature ourselves
+                                    // See https://github.com/qt/qtvirtualkeyboard/blob/6d810ac41df96f1ad984f56e17f16860bec2abbf/src/virtualkeyboard/qvirtualkeyboardinputcontext_p.h#L110
+                                    inputPanel.InputContext.priv.navigationKeyPressed(key, false);
+                                }
         onKeyNavigationReleased: (key) => {
-            // HACK: invoke the Qt VirtualKeyboard keyboard navigation feature ourselves
-            inputPanel.InputContext.priv.navigationKeyReleased(key, false);
-        }
+                                     // HACK: invoke the Qt VirtualKeyboard keyboard navigation feature ourselves
+                                     inputPanel.InputContext.priv.navigationKeyReleased(key, false);
+                                 }
     }
+
+    DiacriticsPopup {
+        id: diacriticsPopup
+        anchors.horizontalCenter: panelWrapper.horizontalCenter
+        anchors.bottom: panelWrapper.top
+
+        onCharacterSelected: (character) => {
+                                 thing.commitDiacritic(character);
+                             }
+    }
+
+    // Expand interactive region to cover the popup when visible so clicks don't pass through
+    // Interactive region covers keyboard; when popup is visible, include its bounds without grabbing the whole screen
+    readonly property rect panelRegion: Qt.rect(panelWrapper.x, panelWrapper.y, panelWrapper.width, panelWrapper.height)
+    readonly property rect popupRegion: Qt.rect(diacriticsPopup.x, diacriticsPopup.y, diacriticsPopup.width, diacriticsPopup.height)
+    function unionRect(a, b) {
+        const x1 = Math.min(a.x, b.x);
+        const y1 = Math.min(a.y, b.y);
+        const x2 = Math.max(a.x + a.width, b.x + b.width);
+        const y2 = Math.max(a.y + a.height, b.y + b.height);
+        return Qt.rect(x1, y1, x2 - x1, y2 - y1);
+    }
+
+    interactiveRegion: diacriticsPopup.visible ? unionRect(panelRegion, popupRegion) : panelRegion
 
     Kirigami.ShadowedRectangle {
         id: panelWrapper
