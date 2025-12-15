@@ -61,5 +61,15 @@ KCM.ScrollViewKCM {
                 checked = Qt.binding(() => kcm.keyboardNavigationEnabled)
             }
         }
+        QQC2.Switch {
+            id: splitKeyboardEnabled
+            text: i18n("Split keyboard")
+
+            checked: kcm.splitKeyboardEnabled
+            onCheckedChanged: {
+                kcm.splitKeyboardEnabled = checked;
+                checked = Qt.binding(() => kcm.splitKeyboardEnabled)
+            }
+        }
     }
 }

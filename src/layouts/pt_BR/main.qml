@@ -6,6 +6,8 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 import QtQuick.Layouts
 
+import org.kde.plasma.keyboard
+
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
     keyWeight: 160
@@ -33,6 +35,8 @@ KeyboardLayout {
         Key {
             key: Qt.Key_T
             text: "t"
+        }
+        KeyboardLayoutParts.LineGap {
         }
         Key {
             key: Qt.Key_Y
@@ -80,6 +84,8 @@ KeyboardLayout {
             key: Qt.Key_G
             text: "g"
         }
+        KeyboardLayoutParts.LineGap {
+        }
         Key {
             key: Qt.Key_H
             text: "h"
@@ -118,6 +124,8 @@ KeyboardLayout {
             key: Qt.Key_C
             text: "c"
             alternativeKeys: "čcć"
+        }
+        KeyboardLayoutParts.LineGap {
         }
         Key {
             key: Qt.Key_V
@@ -161,6 +169,7 @@ KeyboardLayout {
         SpaceKey {
         }
         Key {
+            Layout.preferredWidth: 52
             key: Qt.Key_Period
             weight: normalKeyWidth
             Layout.fillWidth: false

@@ -6,6 +6,8 @@ import QtQuick.Layouts
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 
+import org.kde.plasma.keyboard
+
 KeyboardLayoutLoader {
     property bool secondPage
     onVisibleChanged: if (!visible) secondPage = false
@@ -37,6 +39,8 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_5
                     text: "5"
+                }
+                KeyboardLayoutParts.LineGap {
                 }
                 Key {
                     key: Qt.Key_6
@@ -79,6 +83,8 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_Asterisk
                     text: "*"
+                }
+                KeyboardLayoutParts.LineGap {
                 }
                 Key {
                     key: Qt.Key_Underscore
@@ -123,6 +129,8 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_Apostrophe
                     text: "'"
+                }
+                KeyboardLayoutParts.LineGap {
                 }
                 Key {
                     key: Qt.Key_Colon
@@ -188,6 +196,7 @@ KeyboardLayoutLoader {
             keyWeight: 160
             readonly property real normalKeyWidth: normalKey.width
             readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
+            readonly property real wideness: parent.width / parent.height
             KeyboardRow {
                 Key {
                     key: Qt.Key_AsciiTilde
@@ -209,6 +218,8 @@ KeyboardLayoutLoader {
                 Key {
                     key: 0x221A
                     text: "√"
+                }
+                KeyboardLayoutParts.LineGap {
                 }
                 Key {
                     key: Qt.Key_division
@@ -253,6 +264,8 @@ KeyboardLayoutLoader {
                     key: 0xA5
                     text: "¥"
                 }
+                KeyboardLayoutParts.LineGap {
+                }
                 Key {
                     key: Qt.Key_AsciiCircum
                     text: "^"
@@ -296,6 +309,8 @@ KeyboardLayoutLoader {
                 Key {
                     key: Qt.Key_guillemotright
                     text: '»'
+                }
+                KeyboardLayoutParts.LineGap {
                 }
                 Key {
                     key: Qt.Key_Semicolon

@@ -28,5 +28,9 @@
             <label>Whether the keyboard panel fills the screen width.</label>
             <default>true</default>
         </entry>
+        <entry key="splitKeyboardEnabled" type="bool">
+            <label>Split the keyboard panel horizontally into two halves with a gap at the center.</label>
+            <default>false</default>
+        </entry>
     </group>
 </kcfg>

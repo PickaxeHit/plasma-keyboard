@@ -17,6 +17,7 @@ class PlasmaKeyboardKcm : public KQuickManagedConfigModule
     Q_PROPERTY(bool vibrationEnabled READ vibrationEnabled WRITE setVibrationEnabled NOTIFY vibrationEnabledChanged)
     Q_PROPERTY(QStringList enabledLocales READ enabledLocales NOTIFY enabledLocalesChanged)
     Q_PROPERTY(bool keyboardNavigationEnabled READ keyboardNavigationEnabled WRITE setKeyboardNavigationEnabled NOTIFY keyboardNavigationEnabledChanged)
+    Q_PROPERTY(bool splitKeyboardEnabled READ splitKeyboardEnabled WRITE setSplitKeyboardEnabled NOTIFY splitKeyboardEnabledChanged)
 
 public:
     PlasmaKeyboardKcm(QObject *parent, const KPluginMetaData &metaData);
@@ -35,6 +36,9 @@ public:
     bool keyboardNavigationEnabled() const;
     void setKeyboardNavigationEnabled(bool keyboardNavigationEnabled);
 
+    bool splitKeyboardEnabled() const;
+    void setSplitKeyboardEnabled(bool splitKeyboardEnabled);
+
     bool isSaveNeeded() const override;
 
 public Q_SLOTS:
@@ -46,6 +50,7 @@ Q_SIGNALS:
     void vibrationEnabledChanged();
     void enabledLocalesChanged();
     void keyboardNavigationEnabledChanged();
+    void splitKeyboardEnabledChanged();
 
 private:
     bool m_soundEnabled = false;
@@ -57,4 +62,6 @@ private:
     QStringList m_enabledLocales;
 
     PlasmaKeyboardSettings *m_settings = nullptr;
+
+    bool m_splitKeyboardEnabled = false;
 };

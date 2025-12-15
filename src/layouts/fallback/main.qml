@@ -6,11 +6,14 @@ import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 import QtQuick.Layouts
 
+import org.kde.plasma.keyboard
+
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
     keyWeight: 160
     readonly property real normalKeyWidth: normalKey.width
     readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
+    readonly property real wideness: parent.width / parent.height
     KeyboardRow {
         Key {
             key: Qt.Key_Q
@@ -47,6 +50,19 @@ KeyboardLayout {
             alternativeKeys: "ţt5ŧť"
             smallText: "5"
             smallTextVisible: true
+        }
+        Item{
+            Layout.minimumWidth: 0
+            Layout.preferredWidth: {
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
         }
         Key {
             key: Qt.Key_Y
@@ -117,6 +133,19 @@ KeyboardLayout {
             text: "g"
             alternativeKeys: "ġgģĝğ"
         }
+        Item{
+            Layout.minimumWidth: 0
+            Layout.preferredWidth: {
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
+        }
         Key {
             key: Qt.Key_H
             text: "h"
@@ -161,6 +190,19 @@ KeyboardLayout {
             key: Qt.Key_C
             text: "c"
             alternativeKeys: "çcċčć"
+        }
+        Item{
+            Layout.minimumWidth: 0
+            Layout.preferredWidth: {
+                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
+                    var factor = wideness - 2
+                    return (12 * (factor **2) + parent.children.length * 10 *factor)
+
+                }
+                else{
+                    return 0
+                }
+            }
         }
         Key {
             key: Qt.Key_V
