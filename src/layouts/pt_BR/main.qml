@@ -13,7 +13,6 @@ KeyboardLayout {
     keyWeight: 160
     readonly property real normalKeyWidth: normalKey.width
     readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
-    readonly property real wideness: parent.width / parent.height
     KeyboardRow {
         Key {
             key: Qt.Key_Q
@@ -32,14 +31,12 @@ KeyboardLayout {
         Key {
             key: Qt.Key_R
             text: "r"
-            // text: aspectRatio
         }
         Key {
             key: Qt.Key_T
             text: "t"
         }
         KeyboardLayoutParts.LineGap {
-            aspectRatio: wideness
         }
         Key {
             key: Qt.Key_Y
@@ -88,7 +85,6 @@ KeyboardLayout {
             text: "g"
         }
         KeyboardLayoutParts.LineGap {
-            aspectRatio: wideness
         }
         Key {
             key: Qt.Key_H
@@ -130,7 +126,6 @@ KeyboardLayout {
             alternativeKeys: "čcć"
         }
         KeyboardLayoutParts.LineGap {
-            aspectRatio: wideness
         }
         Key {
             key: Qt.Key_V

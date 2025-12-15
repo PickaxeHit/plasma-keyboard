@@ -18,7 +18,6 @@ KeyboardLayoutLoader {
             keyWeight: 160
             readonly property real normalKeyWidth: normalKey.width
             readonly property real functionKeyWidth: mapFromItem(normalKey, normalKey.width / 2, 0).x
-            readonly property real wideness: parent.width / parent.height
             KeyboardRow {
                 Key {
                     key: Qt.Key_1
@@ -42,7 +41,6 @@ KeyboardLayoutLoader {
                     text: "5"
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_6
@@ -87,7 +85,6 @@ KeyboardLayoutLoader {
                     text: "*"
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Underscore
@@ -134,7 +131,6 @@ KeyboardLayoutLoader {
                     text: "'"
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Colon
@@ -224,7 +220,6 @@ KeyboardLayoutLoader {
                     text: "√"
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_division
@@ -270,7 +265,6 @@ KeyboardLayoutLoader {
                     text: "¥"
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_AsciiCircum
@@ -317,7 +311,6 @@ KeyboardLayoutLoader {
                     text: '»'
                 }
                 KeyboardLayoutParts.LineGap {
-                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Semicolon
