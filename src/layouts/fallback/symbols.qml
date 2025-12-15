@@ -41,18 +41,8 @@ KeyboardLayoutLoader {
                     key: Qt.Key_5
                     text: "5"
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_6
@@ -96,18 +86,8 @@ KeyboardLayoutLoader {
                     key: Qt.Key_Asterisk
                     text: "*"
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Underscore
@@ -153,18 +133,8 @@ KeyboardLayoutLoader {
                     key: Qt.Key_Apostrophe
                     text: "'"
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Colon
@@ -253,18 +223,8 @@ KeyboardLayoutLoader {
                     key: 0x221A
                     text: "√"
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_division
@@ -309,18 +269,8 @@ KeyboardLayoutLoader {
                     key: 0xA5
                     text: "¥"
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_AsciiCircum
@@ -366,18 +316,8 @@ KeyboardLayoutLoader {
                     key: Qt.Key_guillemotright
                     text: '»'
                 }
-                Item{
-                    Layout.minimumWidth: 0
-                    Layout.preferredWidth: {
-                        if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                            var factor = wideness - 2
-                            return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                        }
-                        else{
-                            return 0
-                        }
-                    }
+                KeyboardLayoutParts.LineGap {
+                    aspectRatio: wideness
                 }
                 Key {
                     key: Qt.Key_Semicolon

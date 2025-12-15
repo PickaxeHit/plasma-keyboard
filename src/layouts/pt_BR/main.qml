@@ -38,9 +38,9 @@ KeyboardLayout {
             key: Qt.Key_T
             text: "t"
         }
-            KeyboardLayoutParts.LineGap{
-                aspectRatio: wideness
-            }
+        KeyboardLayoutParts.LineGap {
+            aspectRatio: wideness
+        }
         Key {
             key: Qt.Key_Y
             text: "y"
@@ -87,18 +87,8 @@ KeyboardLayout {
             key: Qt.Key_G
             text: "g"
         }
-        Item{
-            Layout.minimumWidth: 0
-            Layout.preferredWidth: {
-                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                    var factor = wideness - 2
-                    return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                }
-                else{
-                    return 0
-                }
-            }
+        KeyboardLayoutParts.LineGap {
+            aspectRatio: wideness
         }
         Key {
             key: Qt.Key_H
@@ -139,18 +129,8 @@ KeyboardLayout {
             text: "c"
             alternativeKeys: "čcć"
         }
-        Item{
-            Layout.minimumWidth: 0
-            Layout.preferredWidth: {
-                if (wideness > 2 && PlasmaKeyboardSettings.splitKeyboardEnabled){
-                    var factor = wideness - 2
-                    return (12 * (factor **2) + parent.children.length * 10 *factor)
-
-                }
-                else{
-                    return 0
-                }
-            }
+        KeyboardLayoutParts.LineGap {
+            aspectRatio: wideness
         }
         Key {
             key: Qt.Key_V
