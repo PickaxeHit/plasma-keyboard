@@ -35,6 +35,14 @@ target_sources(plasma-keyboard PRIVATE
     ${dbusinterface_SRCS}
 )
 
+ecm_qt_declare_logging_category(plasma-keyboard
+    HEADER logging.h
+    IDENTIFIER "PlasmaKeyboard"
+    CATEGORY_NAME "org.kde.plasma.keyboard"
+    DESCRIPTION "Plasma Keyboard"
+    DEFAULT_SEVERITY Debug
+)
+
 ecm_add_qml_module(plasma-keyboard
     URI "org.kde.plasma.keyboard"
     GENERATE_PLUGIN_SOURCE
@@ -46,6 +54,7 @@ ecm_target_qml_sources(plasma-keyboard SOURCES
     qml/main.qml
     qml/LanguagePopup.qml
     qml/LanguagePopupDelegate.qml
+    qml/DiacriticsPopup.qml
 )
 ecm_finalize_qml_module(plasma-keyboard)
 
