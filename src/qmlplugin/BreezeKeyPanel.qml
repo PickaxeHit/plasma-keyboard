@@ -67,13 +67,12 @@ KeyPanel {
     }
 
     // Right-click handler for shift behavior
-    MouseArea {
-        anchors.fill: parent
+    TapHandler {
         acceptedButtons: Qt.RightButton
         enabled: PlasmaKeyboardSettings.rightClickShift
 
-        onClicked: (mouse) => {
-            if (mouse.button === Qt.RightButton && root.control) {
+        onTapped: {
+            if (root.control) {
                 // Get the text from the key
                 let keyText = root.control.text;
 
