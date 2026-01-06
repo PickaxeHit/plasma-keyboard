@@ -20,10 +20,8 @@ KeyPanel {
 
     property real radius: BreezeConstants.buttonRadius
 
-    property bool rightClickActive: false
-
     property color color: {
-        if ((control && control.pressed) || rightClickActive) {
+        if ((control && control.pressed) || rightClickHandler.pressed) {
             return BreezeConstants.normalKeyPressedBackgroundColor;
         } else if (control && control.highlighted) {
             return BreezeConstants.highlightedKeyBackgroundColor;
@@ -59,15 +57,9 @@ KeyPanel {
         }
     }
 
-    // Timer to reset visual feedback after right-click
-    Timer {
-        id: rightClickTimer
-        interval: 150
-        onTriggered: root.rightClickActive = false
-    }
-
     // Right-click handler for shift behavior
     TapHandler {
+        id: rightClickHandler
         acceptedButtons: Qt.RightButton
         enabled: PlasmaKeyboardSettings.rightClickShift
 
@@ -79,10 +71,6 @@ KeyPanel {
                 // Only process if there's text
                 if (keyText && keyText.length > 0) {
                     let shiftedText = keyText.toUpperCase();
-
-                    // Show visual feedback (key lights up)
-                    root.rightClickActive = true;
-                    rightClickTimer.restart();
 
                     if (InputContext && InputContext.inputEngine) {
                         InputContext.commit(shiftedText);
