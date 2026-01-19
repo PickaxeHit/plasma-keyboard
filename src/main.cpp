@@ -5,11 +5,14 @@
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 */
 
+#include "logging.h"
+
 #include <KAboutData>
 #include <KConfigWatcher>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
 
+#include "plasmakeyboardsettings.h"
 #include <QCommandLineParser>
 #include <QDir>
 #include <QGuiApplication>
@@ -22,6 +25,7 @@
 #include "plasmakeyboardsettings.h"
 #include "qwaylandinputpanelshellintegration_p.h"
 
+#include "inputpanelintegration.h"
 #include <config-plasma-keyboard.h>
 
 static bool initPanelIntegration(QWindow *window)
@@ -123,14 +127,22 @@ int main(int argc, char **argv)
 
     QQmlApplicationEngine view;
     KLocalization::setupLocalizedContext(&view);
-    QObject::connect(&view, &QQmlApplicationEngine::objectCreated, &application, [](QObject *object) {
+
+    QObject::connect(&view, &QQmlApplicationEngine::objectCreated, &application, [](QObject *object, const QUrl &) {
         auto window = qobject_cast<QWindow *>(object);
-        if (!initPanelIntegration(window)) {
+        const bool ok = initInputPanelIntegration(window, InputPanelRole::Keyboard);
+
+        if (!ok) {
             QTextStream(stderr) << "Cannot run plasma-keyboard standalone. You can enable it in Plasma’s System Settings app, on the “Virtual Keyboard” page.";
             exit(1);
         }
+
+        window->requestActivate();
+        window->setVisible(true);
     });
     view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma/keyboard/main.qml")));
+
+    qCDebug(PlasmaKeyboard) << "Starting Plasma Keyboard application";
 
     return application.exec();
 }
