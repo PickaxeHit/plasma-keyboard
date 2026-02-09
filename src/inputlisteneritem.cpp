@@ -1,14 +1,22 @@
 /*
     SPDX-FileCopyrightText: 2024 Aleix Pol i Gonzalez <aleixpol@kde.org>
     SPDX-FileCopyrightText: 2025 Devin Lin <devin@kde.org>
+    SPDX-FileCopyrightText: 2026 Kristen McWilliam <kristen@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 */
 
 #include "inputlisteneritem.h"
 #include "inputmethod_p.h"
+#include "logging.h"
 #include "plasmakeyboardsettings.h"
 
+#include "overlay/longpresstrigger.h"
+#include "overlay/overlaycontroller.h"
+#include "overlay/prefixquerytrigger.h"
+#include "overlay/textexpansiontrigger.h"
+
+#include <QLoggingCategory>
 #include <QTextFormat>
 
 #include <set>
@@ -40,12 +48,25 @@ Q_GLOBAL_STATIC_WITH_ARGS(const QList<Qt::Key>, KEYBOARD_NAVIGATION_ACTIVE_CAPTU
 
 InputListenerItem::InputListenerItem()
     : m_input(&(*s_im))
+    , m_overlayController(new OverlayController(&m_input, this))
 {
     // Grab and listen to physical keyboard input
     m_input.setGrabbing(true);
 
+    // Register overlay triggers
+    m_overlayController->registerTrigger(new LongPressTrigger(m_overlayController));
+    m_overlayController->registerTrigger(new PrefixQueryTrigger(m_overlayController));
+    m_overlayController->registerTrigger(new TextExpansionTrigger(m_overlayController));
+
     connect(&m_input, &InputPlugin::contextChanged, this, [this] {
-        if (m_input.hasContext()) {
+        const bool hasContext = m_input.hasContext();
+
+        // Cancel any pending overlay state when the input context changes (focus loss or target swap)
+        if (m_overlayController) {
+            m_overlayController->cancelOverlay();
+        }
+
+        if (hasContext) {
             QGuiApplication::inputMethod()->update(Qt::ImQueryAll);
             QGuiApplication::inputMethod()->show();
         } else {
@@ -69,10 +90,31 @@ InputListenerItem::InputListenerItem()
     });
 
     connect(&m_input, &InputPlugin::keyPressed, this, [this](QKeyEvent *keyEvent) {
+        qCDebug(PlasmaKeyboard) << "keyPressed. keycode:" << keyEvent->key() << "text:" << keyEvent->text() << "modifiers:" << keyEvent->modifiers();
+
+        if (!window()->isVisible()) {
+            return;
+        }
+
+        // Delegate to overlay controller for diacritics/emoji/text expansion
+        if (m_overlayController && m_overlayController->processKeyPress(keyEvent)) {
+            keyEvent->accept();
+            return;
+        }
+
         if (keyEvent->modifiers() != Qt::NoModifier) {
             return;
         }
-        if (!window()->isVisible()) {
+
+        // For control keys, we handle the event ourselves via keysyms.
+        // Mark accepted to prevent the Keyboard fallback path from forwarding the original key
+        // to the client (which would cause a double delete).
+        if (keyEvent->key() == Qt::Key_Backspace || keyEvent->key() == Qt::Key_Delete) {
+            const QList<xkb_keysym_t> keys = QXkbCommon::toKeysym(keyEvent);
+            for (auto key : keys) {
+                m_input.keysym(QDateTime::currentMSecsSinceEpoch(), key, InputPlugin::Pressed, 0);
+            }
+            keyEvent->accept();
             return;
         }
 
@@ -89,12 +131,36 @@ InputListenerItem::InputListenerItem()
                 }
             }
         }
+
+        // Forward other keys to the input method
+        const QList<xkb_keysym_t> keys = QXkbCommon::toKeysym(keyEvent);
+        for (auto key : keys) {
+            // Simulate key press only if it's not textual
+            if (shouldSimulateKeysym(keyEvent, key)) {
+                m_input.keysym(QDateTime::currentMSecsSinceEpoch(), key, InputPlugin::Pressed, 0);
+            }
+        }
     });
     connect(&m_input, &InputPlugin::keyReleased, this, [this](QKeyEvent *keyEvent) {
+        qCDebug(PlasmaKeyboard) << "keyReleased. keycode:" << keyEvent->key() << "text:" << keyEvent->text();
+
+        if (!window()->isVisible()) {
+            return;
+        }
+
+        // Let the overlay controller handle release events (e.g. diacritics, emoji)
+        if (m_overlayController && m_overlayController->processKeyRelease(keyEvent)) {
+            keyEvent->accept();
+            return;
+        }
+
         if (keyEvent->modifiers() != Qt::NoModifier) {
             return;
         }
-        if (!window()->isVisible()) {
+
+        // We already handle Backspace/Delete on press; accept to prevent fallback forwarding.
+        if (keyEvent->key() == Qt::Key_Backspace || keyEvent->key() == Qt::Key_Delete) {
+            keyEvent->accept();
             return;
         }
 
@@ -110,6 +176,22 @@ InputListenerItem::InputListenerItem()
                     break;
                 }
             }
+        }
+
+        // Forward other keys to the input method
+        const QList<xkb_keysym_t> keys = QXkbCommon::toKeysym(keyEvent);
+        bool simulated = false;
+        for (auto key : keys) {
+            if (shouldSimulateKeysym(keyEvent, key)) {
+                // Simulate the keyboard press for non textual/control keys
+                m_input.keysym(QDateTime::currentMSecsSinceEpoch(), key, InputPlugin::Released, 0);
+                simulated = true;
+            }
+        }
+
+        // If we have text coming as a key event and no keysym was simulated, use it to commit the string once
+        if (!simulated && !keyEvent->text().isEmpty()) {
+            m_input.commit(keyEvent->text());
         }
     });
 
@@ -132,6 +214,16 @@ InputListenerItem::InputListenerItem()
     // TODO: Investigate other places this might happen and how to fix it.
 
     QGuiApplication::inputMethod()->update(Qt::ImQueryAll);
+}
+
+bool InputListenerItem::shouldSimulateKeysym(const QKeyEvent *keyEvent, xkb_keysym_t keysym) const
+{
+    return keyEvent->text().isEmpty() || keysym == XKB_KEY_Return;
+}
+
+OverlayController *InputListenerItem::overlayController() const
+{
+    return m_overlayController;
 }
 
 void InputListenerItem::setEngine(QVirtualKeyboardInputEngine * /*engine*/)
