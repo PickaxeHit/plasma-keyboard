@@ -61,5 +61,16 @@ KCM.ScrollViewKCM {
                 checked = Qt.binding(() => kcm.keyboardNavigationEnabled)
             }
         }
+
+        QQC2.CheckBox {
+            id: rightClickShift
+            text: i18n("Right-click for shift")
+
+            checked: kcm.rightClickShift
+            onCheckedChanged: {
+                kcm.rightClickShift = checked;
+                checked = Qt.binding(() => kcm.rightClickShift)
+            }
+        }
     }
 }

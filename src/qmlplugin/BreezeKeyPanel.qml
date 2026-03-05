@@ -21,7 +21,7 @@ KeyPanel {
     property real radius: BreezeConstants.buttonRadius
 
     property color color: {
-        if (control && control.pressed) {
+        if ((control && control.pressed) || rightClickHandler.pressed) {
             return BreezeConstants.normalKeyPressedBackgroundColor;
         } else if (control && control.highlighted) {
             return BreezeConstants.highlightedKeyBackgroundColor;
@@ -53,6 +53,29 @@ KeyPanel {
         function onPressedChanged() {
             if (root.control.pressed && PlasmaKeyboardSettings.vibrationEnabled) {
                 Vibration.vibrate(PlasmaKeyboardSettings.vibrationMs);
+            }
+        }
+    }
+
+    // Right-click handler for shift behavior
+    TapHandler {
+        id: rightClickHandler
+        acceptedButtons: Qt.RightButton
+        enabled: PlasmaKeyboardSettings.rightClickShift
+
+        onTapped: {
+            if (root.control) {
+                // Get the text from the key
+                let keyText = root.control.text;
+
+                // Only process if there's text
+                if (keyText && keyText.length > 0) {
+                    let shiftedText = keyText.toUpperCase();
+
+                    if (InputContext && InputContext.inputEngine) {
+                        InputContext.commit(shiftedText);
+                    }
+                }
             }
         }
     }
