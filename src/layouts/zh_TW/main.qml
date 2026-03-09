@@ -6,6 +6,8 @@ import QtQuick.Layouts
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Components
 
+import org.kde.plasma.keyboard
+
 KeyboardLayoutLoader {
     function createInputMethod() {
         return Qt.createQmlObject('import QtQuick; import QtQuick.VirtualKeyboard.Plugins; TCInputMethod {}', parent, "inputMethod.qml")
@@ -200,7 +202,7 @@ KeyboardLayoutLoader {
                     weight: normalKeyWidth
                     Layout.fillWidth: false
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: Qt.Key_Period
@@ -429,7 +431,7 @@ KeyboardLayoutLoader {
                     weight: normalKeyWidth
                     Layout.fillWidth: false
                 }
-                SpaceKey {
+                CursorMovingSpaceKey {
                 }
                 Key {
                     key: Qt.Key_Period

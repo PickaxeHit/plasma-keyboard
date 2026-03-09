@@ -145,6 +145,7 @@ InputPanelWindow {
 
             Component.onCompleted: {
                 VirtualKeyboardSettings.styleName = "Breeze";
+                Global.inputContext = inputPanel.InputContext;
                 inputPanel.updateLocales();
             }
         }
