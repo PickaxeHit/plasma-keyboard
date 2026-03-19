@@ -31,7 +31,19 @@ QWaylandInputPanelSurface::~QWaylandInputPanelSurface()
 
 void QWaylandInputPanelSurface::applyConfigure()
 {
-    const QVariant roleVariant = window()->window()->property("plasmaKeyboardInputPanelRole");
+    QtWaylandClient::QWaylandWindow *waylandWindow = this->window();
+    if (!waylandWindow) {
+        qCWarning(qLcQpaShellIntegration) << "No Wayland window associated with input panel surface";
+        return;
+    }
+
+    QWindow *qWindow = waylandWindow->window();
+    if (!qWindow) {
+        qCWarning(qLcQpaShellIntegration) << "No QWindow associated with input panel surface";
+        return;
+    }
+
+    const QVariant roleVariant = qWindow->property("plasmaKeyboardInputPanelRole");
     const int role = roleVariant.isValid() ? roleVariant.toInt() : -1;
 
     switch (role) {
@@ -40,11 +52,23 @@ void QWaylandInputPanelSurface::applyConfigure()
         break;
     case InputPanelRole::Keyboard:
     default:
-        set_toplevel(window()->waylandScreen()->output(), position_center_bottom);
+        auto *screen = waylandWindow->waylandScreen();
+        if (!screen) {
+            qCWarning(qLcQpaShellIntegration) << "No Wayland screen available, cannot configure input panel surface";
+            return;
+        }
+
+        set_toplevel(screen->output(), position_center_bottom);
         break;
     }
 
-    window()->display()->handleWindowActivated(window());
+    auto display = waylandWindow->display();
+    if (!display) {
+        qCWarning(qLcQpaShellIntegration) << "No Wayland display available, cannot handle window activation";
+        return;
+    }
+
+    display->handleWindowActivated(waylandWindow);
 }
 
 QT_END_NAMESPACE
