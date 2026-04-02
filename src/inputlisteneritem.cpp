@@ -342,6 +342,13 @@ void InputListenerItem::keyReleaseEvent(QKeyEvent *event)
 
 void InputListenerItem::inputMethodEvent(QInputMethodEvent *event)
 {
+    // Don't forward events from Qt VKBD to KWin if the keyboard window isn't open
+    // This avoids the possibility of Qt VKBD causing text changes from receiving
+    // events (ex. cursor movement) done by its input engine (for features like text prediction).
+    if (!window()->isExposed()) {
+        return;
+    }
+
     // Delete characters that are supposed to be replaced
     if (event->replacementLength() > 0) {
         m_input.deleteSurroundingText(event->replacementStart(), event->replacementLength());
