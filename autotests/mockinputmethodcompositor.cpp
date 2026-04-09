@@ -467,6 +467,7 @@ private Q_SLOTS:
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
+        env.insert(u"QT_QPA_PLATFORM"_s, u"wayland"_s);
         m_child->setProcessEnvironment(env);
         m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
         m_child->start();
