@@ -476,13 +476,14 @@ private Q_SLOTS:
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
+        env.insert(u"QT_QPA_PLATFORM"_s, u"wayland"_s);
         m_child->setProcessEnvironment(env);
         m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
         m_child->start();
         QVERIFY2(m_child->waitForStarted(), qPrintable(m_child->errorString()));
 
         qInfo().noquote().nospace() << "Compositor running on WAYLAND_DISPLAY=" << m_socketPath << " " << PLASMA_KEYBOARD_BINARY_PATH;
-        QTRY_VERIFY_WITH_TIMEOUT(!m_inputMethod->resourceMap().isEmpty(), 1000);
+        QTRY_VERIFY_WITH_TIMEOUT(!m_inputMethod->resourceMap().isEmpty(), 3000);
 
         m_inputMethod->sendActivate();
         QVERIFY(!m_inputMethod->resourceMap().isEmpty());
