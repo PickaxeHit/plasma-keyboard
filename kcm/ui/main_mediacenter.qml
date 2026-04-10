@@ -26,7 +26,7 @@ KCM.SimpleKCM {
 
     onActiveFocusChanged: {
         if (activeFocus) {
-            changeLanguagesButton.forceActiveFocus()
+            changeLayoutsButton.forceActiveFocus()
         }
     }
 
@@ -36,9 +36,9 @@ KCM.SimpleKCM {
         spacing: 0
 
         Bigscreen.ButtonDelegate {
-            id: changeLanguagesButton
-            text: i18n("Languages")
-            onClicked: localeSelectorSidebar.open()
+            id: changeLayoutsButton
+            text: i18n("Keyboard Layouts")
+            onClicked: layoutSelectorSidebar.open()
             KeyNavigation.down: soundOnKeypressButton
         }
 
@@ -54,7 +54,7 @@ KCM.SimpleKCM {
         Bigscreen.SwitchDelegate {
             id: soundOnKeypressButton
             text: "Sound"
-            KeyNavigation.up: changeLanguagesButton
+            KeyNavigation.up: changeLayoutsButton
             KeyNavigation.down: vibrationOnKeypressButton
 
             checked: kcm.soundEnabled
@@ -98,9 +98,9 @@ KCM.SimpleKCM {
             }
         }
 
-        LocaleSelectorSidebar {
-            id: localeSelectorSidebar
-            onClosed: changeLanguagesButton.forceActiveFocus()
+        KeyboardLayoutSelectorSidebar {
+            id: layoutSelectorSidebar
+            onClosed: changeLayoutsButton.forceActiveFocus()
         }
     }
 }
