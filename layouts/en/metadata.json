@@ -1,0 +1,58 @@
+{
+    "KPlugin": {
+        "Id": "org.kde.plasma.keyboard.en",
+        "Name": "English"
+    },
+    "X-Plasma-Keyboard": {
+        "Locales": [
+            "en_US",
+            "en_GB"
+        ],
+        "KeyboardLayouts": [
+            {
+                "Id": "qwerty",
+                "Name": "QWERTY",
+                "Files": {
+                    "main": "Main.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            },
+            {
+                "Id": "desktop",
+                "Name": "Desktop",
+                "Files": {
+                    "main": "Desktop.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            },
+            {
+                "Id": "desktop-extended",
+                "Name": "Extended Desktop",
+                "Files": {
+                    "main": "ExtendedDesktop.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            },
+            {
+                "Id": "dvorak",
+                "Name": "Dvorak",
+                "Files": {
+                    "main": "Dvorak.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            }
+        ]
+    }
+}

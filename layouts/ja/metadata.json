@@ -1,0 +1,35 @@
+{
+    "KPlugin": {
+        "Id": "org.kde.plasma.keyboard.ja",
+        "Name": "日本語"
+    },
+    "X-Plasma-Keyboard": {
+        "Locales": [
+            "ja_JP"
+        ],
+        "KeyboardLayouts": [
+            {
+                "Id": "romaji",
+                "Name": "ローマ字",
+                "Files": {
+                    "main": "Romaji.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            },
+            {
+                "Id": "twelvekey",
+                "Name": "12キー",
+                "Files": {
+                    "main": "TwelveKey.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            }
+        ]
+    }
+}

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <KPluginMetaData>
 #include <KQuickManagedConfigModule>
 
 #include "plasmakeyboardsettings.h"
@@ -16,7 +17,8 @@ class PlasmaKeyboardKcm : public KQuickManagedConfigModule
     Q_OBJECT
     Q_PROPERTY(bool soundEnabled READ soundEnabled WRITE setSoundEnabled NOTIFY soundEnabledChanged)
     Q_PROPERTY(bool vibrationEnabled READ vibrationEnabled WRITE setVibrationEnabled NOTIFY vibrationEnabledChanged)
-    Q_PROPERTY(QStringList enabledLocales READ enabledLocales NOTIFY enabledLocalesChanged)
+    Q_PROPERTY(QStringList enabledKeyboardLayoutIds READ enabledKeyboardLayoutIds NOTIFY enabledKeyboardLayoutIdsChanged)
+    Q_PROPERTY(QVariantList availableKeyboardLayouts READ availableKeyboardLayouts NOTIFY availableKeyboardLayoutsChanged)
     Q_PROPERTY(bool keyboardNavigationEnabled READ keyboardNavigationEnabled WRITE setKeyboardNavigationEnabled NOTIFY keyboardNavigationEnabledChanged)
     Q_PROPERTY(bool autoCapitalizationEnabled READ autoCapitalizationEnabled WRITE setAutoCapitalizationEnabled NOTIFY autoCapitalizationEnabledChanged)
     Q_PROPERTY(bool diacriticsPopupEnabled READ diacriticsPopupEnabled WRITE setDiacriticsPopupEnabled NOTIFY diacriticsPopupEnabledChanged)
@@ -31,10 +33,11 @@ public:
     bool vibrationEnabled() const;
     void setVibrationEnabled(bool vibrationEnabled);
 
-    QStringList enabledLocales() const;
+    QStringList enabledKeyboardLayoutIds() const;
+    QVariantList availableKeyboardLayouts() const;
 
-    Q_INVOKABLE void enableLocale(const QString &locale);
-    Q_INVOKABLE void disableLocale(const QString &locale);
+    Q_INVOKABLE void enableKeyboardLayout(const QString &layoutId);
+    Q_INVOKABLE void disableKeyboardLayout(const QString &layoutId);
 
     bool keyboardNavigationEnabled() const;
     void setKeyboardNavigationEnabled(bool keyboardNavigationEnabled);
@@ -57,13 +60,18 @@ public Q_SLOTS:
 Q_SIGNALS:
     void soundEnabledChanged();
     void vibrationEnabledChanged();
-    void enabledLocalesChanged();
+    void enabledKeyboardLayoutIdsChanged();
+    void availableKeyboardLayoutsChanged();
     void keyboardNavigationEnabledChanged();
     void autoCapitalizationEnabledChanged();
     void diacriticsPopupEnabledChanged();
     void diacriticsHoldThresholdMsChanged();
 
 private:
+    void loadAvailableKeyboardLayouts();
+    QString layoutForLocale(const QString &locale) const;
+    QString layoutDescription(const QStringList &locales) const;
+
     bool m_soundEnabled = false;
     bool m_vibrationEnabled = true;
     bool m_keyboardNavigationEnabled = false;
@@ -73,7 +81,8 @@ private:
 
     bool m_saveNeeded = false;
 
-    QStringList m_enabledLocales;
+    QStringList m_enabledKeyboardLayoutIds;
+    QVariantList m_availableKeyboardLayouts;
 
     PlasmaKeyboardSettings *m_settings = nullptr;
 };

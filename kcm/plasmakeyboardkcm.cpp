@@ -7,6 +7,12 @@
 
 #include "plasmakeyboardkcm.h"
 
+#include "keyboardlayoutmetadata.h"
+
+#include <QLocale>
+#include <QVariantMap>
+#include <algorithm>
+
 K_PLUGIN_CLASS_WITH_JSON(PlasmaKeyboardKcm, "kcm_plasmakeyboard.json")
 
 PlasmaKeyboardKcm::PlasmaKeyboardKcm(QObject *parent, const KPluginMetaData &metaData)
@@ -22,6 +28,7 @@ PlasmaKeyboardKcm::PlasmaKeyboardKcm(QObject *parent, const KPluginMetaData &met
     );
     // clang-format on
 
+    loadAvailableKeyboardLayouts();
     load();
 }
 
@@ -59,31 +66,36 @@ void PlasmaKeyboardKcm::setVibrationEnabled(bool vibrationEnabled)
     setNeedsSave(true);
 }
 
-QStringList PlasmaKeyboardKcm::enabledLocales() const
+QStringList PlasmaKeyboardKcm::enabledKeyboardLayoutIds() const
 {
-    return m_enabledLocales;
+    return m_enabledKeyboardLayoutIds;
 }
 
-void PlasmaKeyboardKcm::enableLocale(const QString &locale)
+QVariantList PlasmaKeyboardKcm::availableKeyboardLayouts() const
 {
-    if (m_enabledLocales.contains(locale)) {
+    return m_availableKeyboardLayouts;
+}
+
+void PlasmaKeyboardKcm::enableKeyboardLayout(const QString &layoutId)
+{
+    if (m_enabledKeyboardLayoutIds.contains(layoutId)) {
         return;
     }
 
-    m_enabledLocales.append(locale);
-    Q_EMIT enabledLocalesChanged();
+    m_enabledKeyboardLayoutIds.append(layoutId);
+    Q_EMIT enabledKeyboardLayoutIdsChanged();
 
     setNeedsSave(true);
 }
 
-void PlasmaKeyboardKcm::disableLocale(const QString &locale)
+void PlasmaKeyboardKcm::disableKeyboardLayout(const QString &layoutId)
 {
-    if (!m_enabledLocales.contains(locale)) {
+    if (!m_enabledKeyboardLayoutIds.contains(layoutId)) {
         return;
     }
 
-    m_enabledLocales.removeAll(locale);
-    Q_EMIT enabledLocalesChanged();
+    m_enabledKeyboardLayoutIds.removeAll(layoutId);
+    Q_EMIT enabledKeyboardLayoutIdsChanged();
 
     setNeedsSave(true);
 }
@@ -166,8 +178,17 @@ void PlasmaKeyboardKcm::load()
     setSoundEnabled(PlasmaKeyboardSettings::self()->soundEnabled());
     setVibrationEnabled(PlasmaKeyboardSettings::self()->vibrationEnabled());
 
-    m_enabledLocales = PlasmaKeyboardSettings::self()->enabledLocales();
-    Q_EMIT enabledLocalesChanged();
+    m_enabledKeyboardLayoutIds = PlasmaKeyboardSettings::self()->enabledKeyboardLayoutIds();
+    if (m_enabledKeyboardLayoutIds.isEmpty()) {
+        const QStringList enabledLocales = PlasmaKeyboardSettings::self()->enabledLocales();
+        for (const auto &locale : enabledLocales) {
+            const QString layoutId = layoutForLocale(locale);
+            if (!layoutId.isEmpty() && !m_enabledKeyboardLayoutIds.contains(layoutId)) {
+                m_enabledKeyboardLayoutIds.append(layoutId);
+            }
+        }
+    }
+    Q_EMIT enabledKeyboardLayoutIdsChanged();
     setKeyboardNavigationEnabled(PlasmaKeyboardSettings::self()->keyboardNavigationEnabled());
     setAutoCapitalizationEnabled(PlasmaKeyboardSettings::self()->autoCapitalizationEnabled());
     setDiacriticsPopupEnabled(PlasmaKeyboardSettings::self()->diacriticsPopupEnabled());
@@ -180,7 +201,8 @@ void PlasmaKeyboardKcm::save()
 {
     PlasmaKeyboardSettings::self()->setSoundEnabled(m_soundEnabled);
     PlasmaKeyboardSettings::self()->setVibrationEnabled(m_vibrationEnabled);
-    PlasmaKeyboardSettings::self()->setEnabledLocales(m_enabledLocales);
+    PlasmaKeyboardSettings::self()->setEnabledKeyboardLayoutIds(m_enabledKeyboardLayoutIds);
+    PlasmaKeyboardSettings::self()->setEnabledLocales({});
     PlasmaKeyboardSettings::self()->setKeyboardNavigationEnabled(m_keyboardNavigationEnabled);
     PlasmaKeyboardSettings::self()->setAutoCapitalizationEnabled(m_autoCapitalizationEnabled);
     PlasmaKeyboardSettings::self()->setDiacriticsPopupEnabled(m_diacriticsPopupEnabled);
@@ -188,6 +210,68 @@ void PlasmaKeyboardKcm::save()
     PlasmaKeyboardSettings::self()->save();
 
     setNeedsSave(false);
+}
+
+void PlasmaKeyboardKcm::loadAvailableKeyboardLayouts()
+{
+    QVariantList layouts;
+
+    for (const auto &entry : KeyboardLayoutMetadata::keyboardLayoutEntries()) {
+        const QStringList locales = KeyboardLayoutMetadata::locales(entry.metadata);
+        QVariantMap layout;
+        layout.insert(QStringLiteral("id"), entry.id);
+        layout.insert(QStringLiteral("name"), KeyboardLayoutMetadata::keyboardLayoutDisplayName(entry));
+        layout.insert(QStringLiteral("description"), layoutDescription(locales));
+        layout.insert(QStringLiteral("locales"), locales);
+        layouts.append(layout);
+    }
+
+    std::sort(layouts.begin(), layouts.end(), [](const QVariant &left, const QVariant &right) {
+        return left.toMap().value(QStringLiteral("name")).toString().localeAwareCompare(right.toMap().value(QStringLiteral("name")).toString()) < 0;
+    });
+
+    m_availableKeyboardLayouts = layouts;
+    Q_EMIT availableKeyboardLayoutsChanged();
+}
+
+QString PlasmaKeyboardKcm::layoutForLocale(const QString &locale) const
+{
+    const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
+
+    for (const auto &entry : m_availableKeyboardLayouts) {
+        const QVariantMap layout = entry.toMap();
+        const QStringList locales = layout.value(QStringLiteral("locales")).toStringList();
+        if (locales.contains(locale)) {
+            return layout.value(QStringLiteral("id")).toString();
+        }
+    }
+
+    for (const auto &entry : m_availableKeyboardLayouts) {
+        const QVariantMap layout = entry.toMap();
+        const QStringList locales = layout.value(QStringLiteral("locales")).toStringList();
+        for (const auto &candidateLocale : locales) {
+            if (candidateLocale.section(QLatin1Char('_'), 0, 0) == languageCode) {
+                return layout.value(QStringLiteral("id")).toString();
+            }
+        }
+    }
+
+    return QStringLiteral("org.kde.plasma.keyboard.en/qwerty");
+}
+
+QString PlasmaKeyboardKcm::layoutDescription(const QStringList &locales) const
+{
+    QStringList names;
+    names.reserve(locales.size());
+
+    for (const auto &locale : locales) {
+        const QLocale qlocale(locale);
+        const QString language = qlocale.nativeLanguageName();
+        const QString territory = qlocale.nativeTerritoryName();
+        names.append(territory.isEmpty() ? language : language + QStringLiteral(" (") + territory + QStringLiteral(")"));
+    }
+
+    return names.join(QStringLiteral(", "));
 }
 
 #include "plasmakeyboardkcm.moc"

@@ -15,7 +15,7 @@ import org.kde.kcmutils as KCM
 KCM.ScrollViewKCM {
     id: root
 
-    view: LocaleSelectorListView {
+    view: KeyboardLayoutSelectorListView {
         id: list
 
         Kirigami.Separator {

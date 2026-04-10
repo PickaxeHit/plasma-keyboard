@@ -1,0 +1,24 @@
+{
+    "KPlugin": {
+        "Id": "org.kde.plasma.keyboard.zh-cn",
+        "Name": "简体中文"
+    },
+    "X-Plasma-Keyboard": {
+        "Locales": [
+            "zh_CN"
+        ],
+        "KeyboardLayouts": [
+            {
+                "Id": "pinyin",
+                "Name": "拼音",
+                "Files": {
+                    "main": "Main.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                }
+            }
+        ]
+    }
+}
