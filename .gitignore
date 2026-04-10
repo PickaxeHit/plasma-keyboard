@@ -28,4 +28,6 @@ compile_commands.json
 .cache
 Testing/
 /.vscode/
+/flatpak/flatpak-builder-tools/
+/flatpak/libchewing/
 .qtcreator/

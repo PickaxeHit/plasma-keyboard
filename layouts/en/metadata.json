@@ -1,0 +1,74 @@
+{
+    "KPlugin": {
+        "Id": "org.kde.plasma.keyboard.en",
+        "Name": "English"
+    },
+    "X-Plasma-Keyboard": {
+        "Locales": [
+            "en_US",
+            "en_GB"
+        ],
+        "KeyboardLayouts": [
+            {
+                "Id": "qwerty",
+                "Name": "QWERTY",
+                "Files": {
+                    "main": "Main.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                },
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "full",
+                "Name": "Full Keyboard",
+                "Files": {
+                    "main": "Full.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                },
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "full-extended",
+                "Name": "Extended Full Keyboard",
+                "Files": {
+                    "main": "FullExtended.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                },
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "dvorak",
+                "Name": "Dvorak",
+                "Files": {
+                    "main": "Dvorak.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                },
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            }
+        ]
+    }
+}
