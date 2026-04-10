@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Aleix Pol <aleixpol@kde.org>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <KConfig>
+#include <KConfigGroup>
 #include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
@@ -429,6 +431,10 @@ public:
 private Q_SLOTS:
     void initTestCase()
     {
+        KConfig cfg(QStringLiteral("plasmakeyboardrc"));
+        KConfigGroup grp(&cfg, QStringLiteral("General"));
+        grp.writeEntry(QStringLiteral("enabledLocales"), QStringLiteral("it_IT"));
+
         m_compositor = std::make_unique<QWaylandCompositor>();
         m_socketPath = m_runtimeDir.path() + QLatin1String("/plasma-keyboard-mock-") + QString::number(QCoreApplication::applicationPid());
         m_compositor->setSocketName(m_socketPath.toUtf8());
@@ -514,7 +520,7 @@ private Q_SLOTS:
         sendKey(KEY_1, 10);
         QVERIFY(commitStringSpy.count() || commitStringSpy.wait());
         QCOMPARE(commitStringSpy.count(), 1);
-        QCOMPARE(commitStringSpy.first().first(), QStringLiteral("à"));
+        QCOMPARE(commitStringSpy.first().first().toString(), QStringLiteral("à"));
     }
 
     void cleanupTestCase()
