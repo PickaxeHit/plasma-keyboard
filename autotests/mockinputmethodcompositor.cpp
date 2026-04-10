@@ -6,7 +6,9 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
+#include <QFileInfo>
 #include <QGuiApplication>
+#include <QLibraryInfo>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QSignalSpy>
@@ -62,6 +64,42 @@ static int createAnonymousKeymapFile(off_t size)
         return -1;
     }
     return fd;
+}
+
+static QStringList qmlImportPaths()
+{
+    QStringList paths;
+    const QString defaultPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+    if (!defaultPath.isEmpty()) {
+        paths << defaultPath;
+    }
+
+    const QString qml2ImportPath = qEnvironmentVariable("QML2_IMPORT_PATH");
+    if (!qml2ImportPath.isEmpty()) {
+        paths << qml2ImportPath.split(QLatin1Char(':'), Qt::SkipEmptyParts);
+    }
+
+    const QString qmlImportPath = qEnvironmentVariable("QML_IMPORT_PATH");
+    if (!qmlImportPath.isEmpty()) {
+        paths << qmlImportPath.split(QLatin1Char(':'), Qt::SkipEmptyParts);
+    }
+
+    return paths;
+}
+
+static bool qmlModuleAvailable(QStringView module)
+{
+    QString relPath = module.toString();
+    relPath.replace(QLatin1Char('.'), QLatin1Char('/'));
+    relPath.append(QLatin1String("/qmldir"));
+
+    const QStringList paths = qmlImportPaths();
+    for (const QString &base : paths) {
+        if (QFileInfo::exists(QDir(base).filePath(relPath))) {
+            return true;
+        }
+    }
+    return false;
 }
 
 class InputMethodKeyboard : public QObject, public QtWaylandServer::wl_keyboard
@@ -431,6 +469,10 @@ public:
 private Q_SLOTS:
     void initTestCase()
     {
+        if (!qmlModuleAvailable(u"QtQuick.VirtualKeyboard") || !qmlModuleAvailable(u"QtQuick.VirtualKeyboard.Settings")) {
+            QSKIP("QtQuick.VirtualKeyboard QML modules are not available; skipping compositor integration test.");
+        }
+
         QStandardPaths::setTestModeEnabled(true);
         {
             KConfig cfg(QStringLiteral("plasmakeyboardrc"));
@@ -476,7 +518,6 @@ private Q_SLOTS:
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
-        env.insert(u"QT_QPA_PLATFORM"_s, u"wayland"_s);
         m_child->setProcessEnvironment(env);
         m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
         m_child->start();
