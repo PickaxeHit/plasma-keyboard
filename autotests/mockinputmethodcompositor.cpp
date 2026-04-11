@@ -334,6 +334,7 @@ private:
 
 class InputMethodV1 : public QWaylandCompositorExtensionTemplate<InputMethodV1>, public QtWaylandServer::zwp_input_method_v1
 {
+    Q_OBJECT
 public:
     explicit InputMethodV1(QWaylandCompositor *compositor)
         : QWaylandCompositorExtensionTemplate<InputMethodV1>(compositor)
@@ -369,6 +370,7 @@ public:
             send_activate(resource->handle, contextResource->handle);
         }
         qInfo() << "input_method_v1 activated";
+        Q_EMIT activated();
     }
 
     void sendDeactivate()
@@ -391,6 +393,9 @@ public:
     {
         return m_context.get();
     }
+
+Q_SIGNALS:
+    void activated();
 
 protected:
     void zwp_input_method_v1_bind_resource(Resource *resource) override
@@ -443,10 +448,12 @@ private Q_SLOTS:
             grp.writeEntry(QStringLiteral("enabledLocales"), QStringLiteral("it_IT"));
         }
 
+        qDebug() << "aaaa1";
         m_compositor = std::make_unique<QWaylandCompositor>();
         m_socketPath = m_runtimeDir.path() + QLatin1String("/plasma-keyboard-mock-") + QString::number(QCoreApplication::applicationPid());
         m_compositor->setSocketName(m_socketPath.toUtf8());
         m_compositor->setUseHardwareIntegrationExtension(false);
+        qDebug() << "aaaa2";
         m_compositor->create();
         QTRY_VERIFY_WITH_TIMEOUT(m_compositor->isCreated(), 2000);
 
@@ -455,48 +462,80 @@ private Q_SLOTS:
         m_outputWindow->setTitle(u"Mock Compositor Output"_s);
         m_outputWindow->setVisible(false);
 
+        qDebug() << "aaaa3";
+
         m_output = std::make_unique<QWaylandOutput>(m_compositor.get(), m_outputWindow.get());
         m_output->setManufacturer(u"Mock"_s);
         m_output->setModel(u"InputMethod"_s);
         m_output->addMode(QWaylandOutputMode(QSize(1280, 720), 60000), true);
         m_output->setCurrentMode(m_output->modes().first());
         m_compositor->setDefaultOutput(m_output.get());
+        qDebug() << "aaaa4";
 
         m_xdgShell = std::make_unique<QWaylandXdgShell>(m_compositor.get());
         m_xdgShell->initialize();
+        qDebug() << "aaaa5";
 
         m_inputMethod = std::make_unique<InputMethodV1>(m_compositor.get());
         m_inputMethod->initialize();
+        qDebug() << "aaaa6";
 
         m_inputPanel = std::make_unique<InputPanelV1>(m_compositor.get());
         m_inputPanel->initialize();
         m_inputMethod->setInputPanel(m_inputPanel.get());
 
+        qDebug() << "aaaa7";
+
         m_child = std::make_unique<QProcess>();
-        // m_child->setProcessChannelMode(QProcess::ForwardedChannels);
         connect(m_child.get(), &QProcess::readyReadStandardError, this, [this] {
-            qDebug() << "::" << m_child->readAllStandardError();
+            QTextStream(stderr) << m_child->readAllStandardError();
         });
         connect(m_child.get(), &QProcess::readyReadStandardOutput, this, [this] {
-            qDebug() << ";;" << m_child->readAllStandardOutput();
+            QTextStream(stdout) << m_child->readAllStandardOutput();
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
         m_child->setProcessEnvironment(env);
-        m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
+        m_child->setProgram(QStringLiteral("gdb"));
+        m_child->setArguments({QStringLiteral("-batch"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("set pagination off"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("run"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("bt"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("quit"),
+                               QStringLiteral("--args"),
+                               QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH)});
+        qDebug() << "aaaa8";
         m_child->start();
         QVERIFY2(m_child->waitForStarted(), qPrintable(m_child->errorString()));
 
+        qDebug() << "aaaa9";
         qInfo().noquote().nospace() << "Compositor running on WAYLAND_DISPLAY=" << m_socketPath << " " << PLASMA_KEYBOARD_BINARY_PATH;
-        QTRY_VERIFY_WITH_TIMEOUT(!m_inputMethod->resourceMap().isEmpty(), 30000);
-
+        qDebug() << "aaaa9.1";
+        QElapsedTimer waitTimer;
+        waitTimer.start();
+        while (m_inputMethod->resourceMap().isEmpty() && waitTimer.elapsed() < 30000) {
+            QTest::qWait(50);
+        }
+        if (m_inputMethod->resourceMap().isEmpty()) {
+            qWarning() << "input_method_v1 never bound by client within timeout";
+            qWarning() << "child state:" << m_child->state() << "error:" << m_child->error() << m_child->errorString() << "exitStatus:" << m_child->exitStatus()
+                       << "exitCode:" << m_child->exitCode();
+            QFAIL("input_method_v1 resource not bound by client");
+        }
         m_inputMethod->sendActivate();
+
+        qDebug() << "aaaa9.2";
         QVERIFY(!m_inputMethod->resourceMap().isEmpty());
         QVERIFY(m_inputMethod->context());
         if (!m_inputMethod->context()->keyboard()) {
             QSignalSpy grabSpy(m_inputMethod->context(), &InputMethodContext::keyboardGrabbed);
             QVERIFY(grabSpy.wait());
         }
+        qDebug() << "aaaa11";
 
         auto *keyboard = m_inputMethod->context()->keyboard();
         QVERIFY(keyboard);
@@ -504,6 +543,7 @@ private Q_SLOTS:
             QSignalSpy grabSpy(keyboard, &InputMethodKeyboard::keymapDone);
             QVERIFY(grabSpy.wait());
         }
+        qDebug() << "aaaa12";
     }
 
     void sendKey(int key, int interval)
@@ -511,15 +551,20 @@ private Q_SLOTS:
         auto keyboard = m_inputMethod->context()->keyboard();
         Q_ASSERT(keyboard);
         keyboard->sendKey(key, WL_KEYBOARD_KEY_STATE_PRESSED);
+        qDebug() << "aaaa-sendkey-p" << key << interval;
         wl_display_flush_clients(m_compositor->display());
         QTest::qWait(interval);
         keyboard->sendKey(key, WL_KEYBOARD_KEY_STATE_RELEASED);
         wl_display_flush_clients(m_compositor->display());
+        qDebug() << "aaaa-sendkey-r" << key;
     }
 
     void testLongPressShowsOverlayPanel()
     {
+        qDebug() << "aaaa11";
         QSignalSpy overlaySpy(m_inputPanel.get(), &InputPanelV1::overlayPanelRequested);
+
+        qDebug() << "aaaa12";
 
         sendKey(KEY_A, 1200);
         QVERIFY(overlaySpy.count() || overlaySpy.wait());
