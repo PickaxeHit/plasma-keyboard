@@ -431,6 +431,11 @@ public:
 private Q_SLOTS:
     void initTestCase()
     {
+        // create a temporary folder for test configs
+        if (!m_home.isValid() || !qputenv("HOME", qPrintable(m_home.path()))) {
+            qFatal("Couldn't create temporary home folder for the test");
+            return;
+        }
         QStandardPaths::setTestModeEnabled(true);
         {
             KConfig cfg(QStringLiteral("plasmakeyboardrc"));
@@ -539,6 +544,7 @@ private Q_SLOTS:
 
 private:
     QTemporaryDir m_runtimeDir;
+    QTemporaryDir m_home;
     QString m_socketPath;
 
     std::unique_ptr<QWaylandCompositor> m_compositor;
