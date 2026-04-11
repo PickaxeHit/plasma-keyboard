@@ -443,10 +443,12 @@ private Q_SLOTS:
             grp.writeEntry(QStringLiteral("enabledLocales"), QStringLiteral("it_IT"));
         }
 
+        qDebug() << "aaaa1";
         m_compositor = std::make_unique<QWaylandCompositor>();
         m_socketPath = m_runtimeDir.path() + QLatin1String("/plasma-keyboard-mock-") + QString::number(QCoreApplication::applicationPid());
         m_compositor->setSocketName(m_socketPath.toUtf8());
         m_compositor->setUseHardwareIntegrationExtension(false);
+        qDebug() << "aaaa2";
         m_compositor->create();
         QTRY_VERIFY_WITH_TIMEOUT(m_compositor->isCreated(), 2000);
 
@@ -455,22 +457,29 @@ private Q_SLOTS:
         m_outputWindow->setTitle(u"Mock Compositor Output"_s);
         m_outputWindow->setVisible(false);
 
+        qDebug() << "aaaa3";
+
         m_output = std::make_unique<QWaylandOutput>(m_compositor.get(), m_outputWindow.get());
         m_output->setManufacturer(u"Mock"_s);
         m_output->setModel(u"InputMethod"_s);
         m_output->addMode(QWaylandOutputMode(QSize(1280, 720), 60000), true);
         m_output->setCurrentMode(m_output->modes().first());
         m_compositor->setDefaultOutput(m_output.get());
+        qDebug() << "aaaa4";
 
         m_xdgShell = std::make_unique<QWaylandXdgShell>(m_compositor.get());
         m_xdgShell->initialize();
+        qDebug() << "aaaa5";
 
         m_inputMethod = std::make_unique<InputMethodV1>(m_compositor.get());
         m_inputMethod->initialize();
+        qDebug() << "aaaa6";
 
         m_inputPanel = std::make_unique<InputPanelV1>(m_compositor.get());
         m_inputPanel->initialize();
         m_inputMethod->setInputPanel(m_inputPanel.get());
+
+        qDebug() << "aaaa7";
 
         m_child = std::make_unique<QProcess>();
         // m_child->setProcessChannelMode(QProcess::ForwardedChannels);
@@ -484,9 +493,11 @@ private Q_SLOTS:
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
         m_child->setProcessEnvironment(env);
         m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
+        qDebug() << "aaaa8";
         m_child->start();
         QVERIFY2(m_child->waitForStarted(), qPrintable(m_child->errorString()));
 
+        qDebug() << "aaaa9";
         qInfo().noquote().nospace() << "Compositor running on WAYLAND_DISPLAY=" << m_socketPath << " " << PLASMA_KEYBOARD_BINARY_PATH;
         QTRY_VERIFY_WITH_TIMEOUT(!m_inputMethod->resourceMap().isEmpty(), 30000);
 
