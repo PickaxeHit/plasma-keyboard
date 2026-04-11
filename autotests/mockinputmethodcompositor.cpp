@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <xkbcommon/xkbcommon.h>
 
+#define PLASMA_KEYBOARD_UNDER_GDB 0
+
 using namespace Qt::StringLiterals;
 
 static int createAnonymousKeymapFile(off_t size)
@@ -334,6 +336,7 @@ private:
 
 class InputMethodV1 : public QWaylandCompositorExtensionTemplate<InputMethodV1>, public QtWaylandServer::zwp_input_method_v1
 {
+    Q_OBJECT
 public:
     explicit InputMethodV1(QWaylandCompositor *compositor)
         : QWaylandCompositorExtensionTemplate<InputMethodV1>(compositor)
@@ -369,6 +372,7 @@ public:
             send_activate(resource->handle, contextResource->handle);
         }
         qInfo() << "input_method_v1 activated";
+        Q_EMIT activated();
     }
 
     void sendDeactivate()
@@ -391,6 +395,9 @@ public:
     {
         return m_context.get();
     }
+
+Q_SIGNALS:
+    void activated();
 
 protected:
     void zwp_input_method_v1_bind_resource(Resource *resource) override
@@ -473,25 +480,46 @@ private Q_SLOTS:
         m_inputMethod->setInputPanel(m_inputPanel.get());
 
         m_child = std::make_unique<QProcess>();
-        // m_child->setProcessChannelMode(QProcess::ForwardedChannels);
         connect(m_child.get(), &QProcess::readyReadStandardError, this, [this] {
-            qDebug() << "::" << m_child->readAllStandardError();
+            QTextStream(stderr) << m_child->readAllStandardError();
         });
         connect(m_child.get(), &QProcess::readyReadStandardOutput, this, [this] {
-            qDebug() << ";;" << m_child->readAllStandardOutput();
+            QTextStream(stdout) << m_child->readAllStandardOutput();
+        });
+        connect(m_child.get(), &QProcess::finished, this, [this] {
+            qWarning() << "child state:" << m_child->state() << "error:" << m_child->error() << m_child->errorString() << "exitStatus:" << m_child->exitStatus()
+                       << "exitCode:" << m_child->exitCode();
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
+        env.insert(u"LIBGL_ALWAYS_SOFTWARE"_s, u"1"_s);
         m_child->setProcessEnvironment(env);
+
+#if PLASMA_KEYBOARD_UNDER_GDB
+        m_child->setProgram(QStringLiteral("gdb"));
+        m_child->setArguments({QStringLiteral("-batch"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("set pagination off"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("run"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("bt"),
+                               QStringLiteral("-ex"),
+                               QStringLiteral("quit"),
+                               QStringLiteral("--args"),
+                               QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH)});
+#else
         m_child->setProgram(QStringLiteral(PLASMA_KEYBOARD_BINARY_PATH));
+#endif
         m_child->start();
         QVERIFY2(m_child->waitForStarted(), qPrintable(m_child->errorString()));
 
         qInfo().noquote().nospace() << "Compositor running on WAYLAND_DISPLAY=" << m_socketPath << " " << PLASMA_KEYBOARD_BINARY_PATH;
-        QTRY_VERIFY_WITH_TIMEOUT(!m_inputMethod->resourceMap().isEmpty(), 30000);
+        {
+            QSignalSpy spy(m_inputMethod.get(), &InputMethodV1::activated);
+            QVERIFY(spy.count() || spy.wait());
+        }
 
-        m_inputMethod->sendActivate();
-        QVERIFY(!m_inputMethod->resourceMap().isEmpty());
         QVERIFY(m_inputMethod->context());
         if (!m_inputMethod->context()->keyboard()) {
             QSignalSpy grabSpy(m_inputMethod->context(), &InputMethodContext::keyboardGrabbed);
