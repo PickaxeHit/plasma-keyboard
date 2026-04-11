@@ -492,7 +492,7 @@ private Q_SLOTS:
         });
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(u"WAYLAND_DISPLAY"_s, m_socketPath);
-        env.insert(u"LIBGL_ALWAYS_SOFTWARE"_s, u"1"_s);
+        env.insert(u"QT_WAYLAND_DISABLE_GL"_s, u"1"_s);
         m_child->setProcessEnvironment(env);
 
 #if PLASMA_KEYBOARD_UNDER_GDB
