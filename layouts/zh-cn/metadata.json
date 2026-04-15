@@ -1,0 +1,51 @@
+{
+    "KPlugin": {
+        "Id": "org.kde.plasma.keyboard.zh-cn",
+        "Name": "简体中文"
+    },
+    "X-Plasma-Keyboard": {
+        "Locales": [
+            "zh_CN"
+        ],
+        "KeyboardLayouts": [
+            {
+                "Id": "pinyin",
+                "Name": "拼音",
+                "Files": {
+                    "main": "Main.qml",
+                    "symbols": "shared/Symbols.qml",
+                    "digits": "shared/Digits.qml",
+                    "numbers": "shared/Numbers.qml",
+                    "dialpad": "shared/Dialpad.qml"
+                },
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "full",
+                "Name": "全键盘",
+                "Files": {
+                    "main": "Full.qml",
+                    "symbols": "shared/Symbols.qml"
+                },
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "full-extended",
+                "Name": "扩展全键盘",
+                "Files": {
+                    "main": "FullExtended.qml",
+                    "symbols": "shared/Symbols.qml"
+                },
+                "FormFactors": [
+                    "desktop"
+                ]
+            }
+        ]
+    }
+}
