@@ -30,10 +30,12 @@
 #include "qwayland-server-input-method-unstable-v1.h"
 #include "qwayland-server-wayland.h"
 
+#include <clocale>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon.h>
 
 #define PLASMA_KEYBOARD_UNDER_GDB 0
@@ -111,6 +113,7 @@ private:
         xkb_rule_names names = {};
         names.rules = "evdev";
         names.layout = "us";
+        names.options = "compose:menu"; // Map the Menu/Compose key to Multi_key
 
         QXkbCommon::ScopedXKBKeymap keymap(xkb_keymap_new_from_names(context.get(), &names, XKB_KEYMAP_COMPILE_NO_FLAGS));
         if (!keymap) {
@@ -182,6 +185,7 @@ public:
 Q_SIGNALS:
     void keyboardGrabbed();
     void commitStringChanged(const QString &commitString);
+    void keysymReceived(uint32_t sym, uint32_t state);
 
 protected:
     void zwp_input_method_context_v1_destroy(Resource *resource) override
@@ -212,6 +216,7 @@ protected:
     {
         Q_UNUSED(resource);
         qInfo() << "keysym" << serial << time << sym << state << modifiers;
+        Q_EMIT keysymReceived(sym, state);
     }
 
     void zwp_input_method_context_v1_grab_keyboard(Resource *resource, uint32_t keyboard) override
@@ -666,6 +671,59 @@ private Q_SLOTS:
         QVERIFY(commitStringSpy.count() || commitStringSpy.wait());
         QCOMPARE(commitStringSpy.count(), 1);
         QCOMPARE(commitStringSpy.first().first().toString(), QStringLiteral("½"));
+    }
+
+    /**
+     * Test that a Multi_key compose sequence (Multi_key + t + m → ™) is handled
+     * locally by the XKB compose state machine in OverlayController. The
+     * intermediate keys must be consumed and not forwarded to the compositor;
+     * only the composed result should arrive via commit_string.
+     */
+    void testComposeSequence()
+    {
+        // Skip if no XKB compose table is available for the current locale.
+        // Without one, OverlayController::m_xkbComposeState is null and the
+        // compose sequence would not be processed locally.
+        {
+            QXkbCommon::ScopedXKBContext xkbCtx(xkb_context_new(XKB_CONTEXT_NO_FLAGS));
+            if (!xkbCtx) {
+                QSKIP("Could not create XKB context");
+            }
+            const char *locale = setlocale(LC_CTYPE, nullptr);
+            if (!locale || locale[0] == '\0') {
+                locale = "C";
+            }
+            xkb_compose_table *composeTable = xkb_compose_table_new_from_locale(xkbCtx.get(), locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
+            if (!composeTable) {
+                QSKIP("No XKB compose table available for the current locale");
+            }
+            xkb_compose_table_unref(composeTable);
+        }
+
+        QSignalSpy overlaySpy(m_inputPanel.get(), &InputPanelV1::overlayPanelRequested);
+        QSignalSpy commitStringSpy(m_inputMethod->context(), &InputMethodContext::commitStringChanged);
+        QSignalSpy keysymSpy(m_inputMethod->context(), &InputMethodContext::keysymReceived);
+
+        // Send the compose sequence: Multi_key → t → m → ™
+        // KEY_COMPOSE (127) maps to Multi_key via the compose:menu keymap option.
+        sendKey(KEY_COMPOSE, 10);
+        sendKey(KEY_T, 10);
+        sendKey(KEY_M, 10);
+
+        // Exactly one commit_string with the composed character should arrive.
+        QTRY_COMPARE(commitStringSpy.count(), 1);
+        QCOMPARE(commitStringSpy.first().first().toString(), QStringLiteral("\u2122"));
+
+        // The intermediate keys (t, m) must not have been forwarded via keysym.
+        // XKB_KEY_t = 0x74, XKB_KEY_m = 0x6d
+        for (const QList<QVariant> &args : keysymSpy) {
+            const uint32_t sym = args.at(0).toUInt();
+            QVERIFY2(sym != 0x74 && sym != 0x6d, "A compose sequence key (t or m) was incorrectly forwarded via keysym");
+        }
+
+        // No overlay should have appeared during the compose sequence.
+        QTest::qWait(200);
+        QVERIFY(overlaySpy.isEmpty());
     }
 
     void cleanupTestCase()
