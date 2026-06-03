@@ -114,6 +114,7 @@ target_link_libraries(plasma-keyboard
     Qt::WaylandClient
     Qt::WaylandClientPrivate
     Wayland::Client
+    PkgConfig::XKBCommon
 )
 
 install(TARGETS plasma-keyboard ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

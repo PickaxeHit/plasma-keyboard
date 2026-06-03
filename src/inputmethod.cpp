@@ -5,12 +5,16 @@
 */
 
 #include "inputmethod_p.h"
+#include "logging.h"
 #include <QDateTime>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QInputMethod>
 #include <QKeyEvent>
 #include <QStandardPaths>
+
+#include <KConfigGroup>
+#include <KSharedConfig>
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -139,6 +143,56 @@ void Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
         mXkbState.reset(xkb_state_new(mXkbKeymap.get()));
     else
         mXkbState.reset(nullptr);
+
+    // KWin does not include compose options (e.g. compose:ralt) in the keymap it sends
+    // to the input method's grabbed keyboard. Build a secondary state from kxkbrc that
+    // does include those options so that the compose key produces Multi_key.
+    buildComposeAwareKeymap();
+}
+
+void Keyboard::buildComposeAwareKeymap()
+{
+    mComposeAwareState.reset(nullptr);
+
+    const KSharedConfig::Ptr config = KSharedConfig::openConfig(QStringLiteral("kxkbrc"), KConfig::NoGlobals);
+    const KConfigGroup layoutGroup = config->group(QStringLiteral("Layout"));
+    const QString options = layoutGroup.readEntry("Options", QString());
+
+    if (options.isEmpty() || !options.contains(QLatin1String("compose:"))) {
+        // No compose option configured; the compositor's keymap is sufficient.
+        return;
+    }
+
+    // Use the first layout/variant from the list (the active one at startup).
+    const QString layoutList = layoutGroup.readEntry("LayoutList", layoutGroup.readEntry("Layout", QStringLiteral("us")));
+    const QString variantList = layoutGroup.readEntry("VariantList", layoutGroup.readEntry("Variant", QString()));
+    const QByteArray model = layoutGroup.readEntry("Model", QStringLiteral("pc105")).toUtf8();
+    const QByteArray layout = layoutList.section(QLatin1Char(','), 0, 0).trimmed().toUtf8();
+    const QByteArray variant = variantList.section(QLatin1Char(','), 0, 0).trimmed().toUtf8();
+    const QByteArray optionsBytes = options.toUtf8();
+
+    const xkb_rule_names names = {
+        .rules = "evdev",
+        .model = model.constData(),
+        .layout = layout.constData(),
+        .variant = variant.constData(),
+        .options = optionsBytes.constData(),
+    };
+
+    xkb_keymap *composeKeymap = xkb_keymap_new_from_names(mXkbContext.get(), &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    if (!composeKeymap) {
+        qCWarning(PlasmaKeyboard) << "Failed to build compose-aware XKB keymap with options:" << options;
+        return;
+    }
+
+    mComposeAwareState.reset(xkb_state_new(composeKeymap));
+    xkb_keymap_unref(composeKeymap);
+
+    if (!mComposeAwareState) {
+        qCWarning(PlasmaKeyboard) << "Failed to create XKB state for compose-aware keymap";
+    } else {
+        qCDebug(PlasmaKeyboard) << "Compose-aware XKB keymap built with options:" << options;
+    }
 }
 
 void Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
@@ -146,6 +200,19 @@ void Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32
     auto code = key + 8; // map to wl_keyboard::keymap_format::keymap_format_xkb_v1
 
     xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState.get(), code);
+
+    // KWin strips compose options (e.g. compose:ralt) from the keymap it sends to
+    // input methods, so the compose key (e.g. RALT) arrives as ISO_Level3_Shift
+    // instead of Multi_key. Check the compose-aware keymap: if it maps this key to
+    // Multi_key, use that. For all other keys (dead keys, regular keys) use the
+    // keysym from mXkbState, which reflects the actual layout KWin sent us.
+    xkb_keysym_t nativeKeysym = sym;
+    if (mComposeAwareState) {
+        const xkb_keysym_t composeSym = xkb_state_key_get_one_sym(mComposeAwareState.get(), code);
+        if (composeSym == XKB_KEY_Multi_key) {
+            nativeKeysym = XKB_KEY_Multi_key;
+        }
+    }
 
     auto modifiers = QXkbCommon::modifiers(mXkbState.get());
     int qtkey = QXkbCommon::keysymToQtKey(sym, modifiers, mXkbState.get(), code);
@@ -156,7 +223,7 @@ void Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32
     const bool isRepeat = (state == 2);
     QEvent::Type type = (state == 0) ? QEvent::KeyRelease : QEvent::KeyPress;
 
-    QKeyEvent keyEvent(type, qtkey, modifiers, key, sym, 0, text, isRepeat);
+    QKeyEvent keyEvent(type, qtkey, modifiers, key, nativeKeysym, 0, text, isRepeat);
     keyEvent.setAccepted(false);
 
     if (type == QEvent::KeyPress) {
@@ -173,6 +240,9 @@ void Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32
 void Keyboard::keyboard_modifiers(uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
 {
     xkb_state_update_mask(mXkbState.get(), mods_depressed, mods_latched, mods_locked, 0, 0, group);
+    if (mComposeAwareState) {
+        xkb_state_update_mask(mComposeAwareState.get(), mods_depressed, mods_latched, mods_locked, 0, 0, group);
+    }
 
     // currently not filterable
     m_parent->modifiers(serial, mods_depressed, mods_latched, mods_locked, group);

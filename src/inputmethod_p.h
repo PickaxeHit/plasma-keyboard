@@ -101,10 +101,23 @@ protected:
     void keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state) override;
     void keyboard_modifiers(uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group) override;
 
+    /**
+     * Builds a secondary XKB state from the kxkbrc configuration, including compose
+     * options (e.g. compose:ralt). KWin strips compose options from the keymap it sends
+     * to input methods, so without this, keys configured as the compose key (e.g. RALT)
+     * produce ISO_Level3_Shift instead of Multi_key and are never recognized by the
+     * compose state machine. The compose-aware state is used solely for the nativeVirtualKey
+     * value in QKeyEvent; all other state (modifiers, text) still comes from mXkbState.
+     */
+    void buildComposeAwareKeymap();
+
 private:
     InputMethodContext *m_parent;
     uint32_t mKeymapFormat = WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1;
     QXkbCommon::ScopedXKBContext mXkbContext;
     QXkbCommon::ScopedXKBKeymap mXkbKeymap;
     QXkbCommon::ScopedXKBState mXkbState;
+    /// Secondary XKB state built from kxkbrc with compose options applied. Null when
+    /// no compose option is configured or keymap construction fails.
+    QXkbCommon::ScopedXKBState mComposeAwareState;
 };
