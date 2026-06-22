@@ -356,7 +356,7 @@ void OverlayController::commitText(const QString &text)
     }
 
     if (m_overlayVisible) {
-        Q_EMIT overlayClosed();
+        setOverlayVisible(false);
     }
 
     // Only swallow the next release if the key is still physically held
@@ -376,7 +376,7 @@ void OverlayController::cancelOverlay()
     // running. Simply close the overlay and reset state.
 
     if (m_overlayVisible) {
-        Q_EMIT overlayClosed();
+        setOverlayVisible(false);
     }
 
     if (!m_pendingText.isEmpty() && !m_pendingKeyReleased) {
@@ -432,17 +432,17 @@ void OverlayController::openOverlay(const QString &triggerId, const QString &bas
         return;
     }
 
-    m_overlayVisible = true;
     m_activeTriggerId = triggerId;
     m_pendingText = baseText;
 
     m_candidateModel->setTriggerId(triggerId);
     m_candidateModel->setCandidates(candidates);
 
-    Q_EMIT overlayVisibleChanged();
     Q_EMIT activeTriggerIdChanged();
     Q_EMIT pendingTextChanged();
     Q_EMIT overlayRequested(triggerId, baseText);
+
+    setOverlayVisible(true);
 
     // Start grace timer for diacritics long-press overlays: if the user keeps
     // holding the key after the overlay opens, after a grace period the overlay
@@ -599,9 +599,7 @@ void OverlayController::handleOverlayGraceTimer()
 
     // Close the overlay.
     if (m_overlayVisible) {
-        m_overlayVisible = false;
-        Q_EMIT overlayVisibleChanged();
-        Q_EMIT overlayClosed();
+        setOverlayVisible(false);
     }
 
     // Start the internal repeat timer with the base character.
@@ -651,6 +649,15 @@ void OverlayController::resetState()
     if (hadTrigger) {
         Q_EMIT activeTriggerIdChanged();
     }
+}
+
+void OverlayController::setOverlayVisible(bool visible)
+{
+    if (m_overlayVisible == visible) {
+        return;
+    }
+    m_overlayVisible = visible;
+    Q_EMIT overlayVisibleChanged();
 }
 
 #include "moc_overlaycontroller.cpp"
