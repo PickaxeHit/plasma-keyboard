@@ -23,8 +23,12 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include <QSocketNotifier>
 #include <QWindow>
 #include <qpa/qwindowsysteminterface.h>
+
+#include <csignal>
+#include <fcntl.h>
 
 int main(int argc, char **argv)
 {
@@ -97,6 +101,35 @@ int main(int argc, char **argv)
         window->setVisible(true);
     });
     view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma/keyboard/main.qml")));
+
+    // Install SIGTERM handler for graceful shutdown (e.g. when terminated by the test harness or systemd).
+    // Using a pipe + QSocketNotifier because Qt APIs cannot be called from signal context.
+    {
+        int sigtermFds[2];
+        if (pipe2(sigtermFds, O_CLOEXEC) != 0) {
+            qCWarning(PlasmaKeyboard) << "Failed to create SIGTERM pipe, graceful shutdown will not be available";
+        } else {
+            const int readFd = sigtermFds[0];
+            const int writeFd = sigtermFds[1];
+            static const int s_writeFd = writeFd;
+            struct sigaction sa = {};
+            sa.sa_handler = [](int) {
+                char a = 1;
+                write(s_writeFd, &a, sizeof(a));
+            };
+            sigemptyset(&sa.sa_mask);
+            sa.sa_flags = SA_RESTART;
+            sigaction(SIGTERM, &sa, nullptr);
+
+            auto *notifier = new QSocketNotifier(readFd, QSocketNotifier::Read, &application);
+            QObject::connect(notifier, &QSocketNotifier::activated, &application, [notifier, readFd]() {
+                notifier->setEnabled(false);
+                char buf;
+                read(readFd, &buf, sizeof(buf));
+                QCoreApplication::quit();
+            });
+        }
+    }
 
     qCDebug(PlasmaKeyboard) << "Starting Plasma Keyboard application";
 
