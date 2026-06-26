@@ -79,16 +79,10 @@ OverlayTriggerResult LongPressTrigger::processEvent(OverlayInputEvent eventType,
             result.pendingNativeScanCode = keyEvent->nativeScanCode();
             result.timerDurationMs = m_holdThresholdMs;
         } else {
-            // Printable character without diacritics: consume and commit via
-            // commit_string for ordering consistency. Since we are accepting the key
-            // event, ask the controller to synthesise repeats with its own internal
-            // timer to retain native key repeat behavior.
-            result.action = OverlayAction::ConsumeEvent;
-            result.consumeEvent = true;
-            result.commitText = keyEvent->text();
-            result.enableRepeat = true;
-            result.repeatScanCode = keyEvent->nativeScanCode();
-            result.pendingNativeScanCode = keyEvent->nativeScanCode();
+            // Non-diacritic printable keys fall through to normal forwarding
+            // in Keyboard::keyboard_key(). No action needed — the key event
+            // is not consumed, so the compositor handles auto-repeat natively.
+            return result;
         }
 
         // qCDebug(PlasmaKeyboard) << "LongPressTrigger: Requesting timer for" << text << "duration" << m_holdThresholdMs << "ms";
