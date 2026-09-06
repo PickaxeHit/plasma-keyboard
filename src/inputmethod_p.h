@@ -94,6 +94,10 @@ public:
     Keyboard(::wl_keyboard *keyboard, InputMethodContext *parent);
     ~Keyboard();
 
+    xkb_context *xkb_context();
+    xkb_keymap *xkb_keymap();
+    xkb_state *xkb_state();
+
 Q_SIGNALS:
     void keyPressed(QKeyEvent *keyEvent);
     void keyReleased(QKeyEvent *keyEvent);

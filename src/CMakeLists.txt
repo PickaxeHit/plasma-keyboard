@@ -43,6 +43,8 @@ target_sources(plasma-keyboard PRIVATE
     qwaylandinputpanelshellintegration_p.h
     qwaylandinputpanelsurface.cpp
     qwaylandinputpanelsurface_p.h
+    layoutswitch.h
+    layoutswitch.cpp
     overlay/overlaycontroller.cpp
     overlay/overlaycontroller.h
     overlay/candidatemodel.cpp
@@ -60,6 +62,8 @@ target_sources(plasma-keyboard PRIVATE
     overlay/textexpansiontrigger.h
 )
 
+qt_add_dbus_interfaces(dbusinterface_SRCS dbus/org.kde.KeyboardLayouts.xml)
+
 if(PLASMA_KEYBOARD_VIBRATION_ENABLED)
     set_source_files_properties(dbus/org.sigxcpu.Feedback.Haptic.xml PROPERTIES INCLUDE vibrationevent.h)
     qt_add_dbus_interfaces(dbusinterface_SRCS
@@ -67,9 +71,12 @@ if(PLASMA_KEYBOARD_VIBRATION_ENABLED)
 
     target_sources(plasma-keyboard PRIVATE
         vibrationevent.h
-        ${dbusinterface_SRCS}
     )
 endif()
+
+target_sources(plasma-keyboard PRIVATE
+    ${dbusinterface_SRCS}
+)
 
 if(PLASMA_KEYBOARD_SOUNDS_ENABLED)
     target_sources(plasma-keyboard PRIVATE
@@ -117,6 +124,7 @@ target_link_libraries(plasma-keyboard
     KF6::ConfigCore
     KF6::ConfigGui
     KF6::Crash
+    KF6::GlobalAccel
     PkgConfig::XKBCommon
     Plasma::PlasmaQuick
     Qt::DBus
