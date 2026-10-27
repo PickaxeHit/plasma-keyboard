@@ -11,7 +11,7 @@
 #include "inputengine.h"
 #include "inputmethod_p.h"
 #include "inputmethodhints.h"
-#include "kwinfakeinput.h"
+#include "kwinemulatedinput.h"
 #include "plasmakeyboardsettings.h"
 #include "virtualkeyboardcontext.h"
 #include "vkbdwaylandinputbackend.h"
@@ -87,7 +87,7 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
     , m_input(&(*s_im))
     , m_vkbdInputBackend(new VkbdWaylandInputBackend(this))
     , m_virtualKeyboardContext(new VirtualKeyboardContext(m_vkbdInputBackend, this))
-    , m_fakeInput(new KWinFakeInput(m_vkbdInputBackend, this))
+    , m_emulatedInput(new KWinEmulatedInput(m_vkbdInputBackend, this))
     , m_overlayController(new OverlayController(&m_input, this))
 {
     m_input.setGrabbing(true);
@@ -237,9 +237,9 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
             return false;
         }
 
-        if (m_fakeInput->shouldUseFakeInput(key)) {
-            // Send this key over kwin-fake-input instead of input-method-v1 (true keyboard emulation)
-            return m_fakeInput->sendKeyPressed(key, pressed);
+        if (m_emulatedInput->shouldEmulateKey(key)) {
+            // Send this key over EI instead of input-method-v1 (true keyboard emulation)
+            return m_emulatedInput->sendKeyPressed(key, pressed);
         }
 
         const uint sym = keysymForQtKey(key);

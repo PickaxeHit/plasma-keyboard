@@ -11,7 +11,7 @@ AbstractKey {
     id: root
 
     /**
-     * Logical key code sent through KWin fake input when the key is activated.
+     * Logical key code sent through KWin EI when the key is activated.
      */
     property int key: Qt.Key_unknown
 
