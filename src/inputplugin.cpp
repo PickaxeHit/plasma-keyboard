@@ -8,6 +8,8 @@
 #include "inputplugin.h"
 #include "inputmethod_p.h"
 
+#include <iterator>
+
 InputPlugin::InputPlugin(InputMethod *inputMethod)
 {
     connect(inputMethod, &InputMethod::deactivate, this, &InputPlugin::deactivate);
@@ -17,6 +19,9 @@ InputPlugin::InputPlugin(InputMethod *inputMethod)
         }
         m_keyboard.reset();
         m_context = inputMethod->activeContext();
+        if (m_context) {
+            m_context->modifiers_map(QByteArrayLiteral("Shift\0Control\0Mod1\0Mod4\0Mod5\0"));
+        }
         Q_EMIT contextChanged();
         Q_EMIT surroundingTextChanged();
         if (!m_context) {
@@ -98,12 +103,19 @@ void InputPlugin::commit(const QString &text)
     m_context->commit_string(m_context->m_latestSerial, text);
 }
 
-void InputPlugin::keysym(uint timestamp, uint sym, KeyState state, uint modifiers)
+void InputPlugin::keysym(uint timestamp, uint sym, KeyState state, Qt::KeyboardModifiers modifiers)
 {
     if (!m_context) {
         return;
     }
-    m_context->keysym(m_context->m_latestSerial, timestamp, sym, state, modifiers);
+    uint mask = 0;
+    const Qt::KeyboardModifier flags[] = {Qt::ShiftModifier, Qt::ControlModifier, Qt::AltModifier, Qt::MetaModifier, Qt::GroupSwitchModifier};
+    for (uint i = 0; i < std::size(flags); ++i) {
+        if (modifiers.testFlag(flags[i])) {
+            mask |= 1u << i;
+        }
+    }
+    m_context->keysym(m_context->m_latestSerial, timestamp, sym, state, mask);
 }
 
 void InputPlugin::key(KeyState state, quint32 scancode)

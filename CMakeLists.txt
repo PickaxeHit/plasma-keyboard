@@ -73,7 +73,6 @@ pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 find_package(Wayland 1.2 REQUIRED COMPONENTS Client)
 find_package(QtWaylandScanner REQUIRED ${QT_MIN_VERSION})
 find_package(WaylandProtocols 1.19 REQUIRED)
-find_package(PlasmaWaylandProtocols REQUIRED)
 
 add_subdirectory(virtualkeyboard)
 add_subdirectory(layouts)

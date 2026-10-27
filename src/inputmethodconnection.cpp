@@ -11,7 +11,7 @@
 #include "inputengine.h"
 #include "inputmethod_p.h"
 #include "inputmethodhints.h"
-#include "kwinfakeinput.h"
+#include "keycodes.h"
 #include "plasmakeyboardsettings.h"
 #include "virtualkeyboardcontext.h"
 #include "vkbdwaylandinputbackend.h"
@@ -44,7 +44,42 @@ Q_GLOBAL_STATIC_WITH_ARGS(const QList<Qt::Key>,
 
 static uint keysymForQtKey(int key)
 {
+    if (key >= Qt::Key_A && key <= Qt::Key_Z) {
+        return XKB_KEY_a + key - Qt::Key_A;
+    }
+    if (key >= Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
+        return key;
+    }
+    if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
+        return XKB_KEY_F1 + key - Qt::Key_F1;
+    }
     switch (key) {
+    case Qt::Key_Shift:
+        return XKB_KEY_Shift_L;
+    case Qt::Key_Control:
+        return XKB_KEY_Control_L;
+    case Qt::Key_Alt:
+        return XKB_KEY_Alt_L;
+    case Qt::Key_Meta:
+        return XKB_KEY_Super_L;
+    case Qt::Key_AltGr:
+        return XKB_KEY_ISO_Level3_Shift;
+    case Qt::Key_CapsLock:
+        return XKB_KEY_Caps_Lock;
+    case KeyCodes::KeyFn:
+        return XKB_KEY_XF86Fn;
+    case Qt::Key_Tab:
+        return XKB_KEY_Tab;
+    case Qt::Key_Backtab:
+        return XKB_KEY_ISO_Left_Tab;
+    case Qt::Key_Escape:
+        return XKB_KEY_Escape;
+    case Qt::Key_Insert:
+        return XKB_KEY_Insert;
+    case Qt::Key_PageUp:
+        return XKB_KEY_Page_Up;
+    case Qt::Key_PageDown:
+        return XKB_KEY_Page_Down;
     case Qt::Key_Backspace:
         return XKB_KEY_BackSpace;
     case Qt::Key_Delete:
@@ -65,10 +100,26 @@ static uint keysymForQtKey(int key)
         return XKB_KEY_Home;
     case Qt::Key_End:
         return XKB_KEY_End;
-    case Qt::Key_Space:
-        return XKB_KEY_space;
     default:
         return XKB_KEY_NoSymbol;
+    }
+}
+
+static Qt::KeyboardModifier modifierForQtKey(int key)
+{
+    switch (key) {
+    case Qt::Key_Shift:
+        return Qt::ShiftModifier;
+    case Qt::Key_Control:
+        return Qt::ControlModifier;
+    case Qt::Key_Alt:
+        return Qt::AltModifier;
+    case Qt::Key_Meta:
+        return Qt::MetaModifier;
+    case Qt::Key_AltGr:
+        return Qt::GroupSwitchModifier;
+    default:
+        return Qt::NoModifier;
     }
 }
 
@@ -87,7 +138,6 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
     , m_input(&(*s_im))
     , m_vkbdInputBackend(new VkbdWaylandInputBackend(this))
     , m_virtualKeyboardContext(new VirtualKeyboardContext(m_vkbdInputBackend, this))
-    , m_fakeInput(new KWinFakeInput(m_vkbdInputBackend, this))
     , m_overlayController(new OverlayController(&m_input, this))
 {
     m_input.setGrabbing(true);
@@ -233,13 +283,11 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
     });
 
     const auto sendKeyPressed = [this](int key, bool pressed) {
-        if (!m_window || !m_window->isExposed()) {
-            return false;
+        if (!m_input.hasContext()) {
+            return !pressed;
         }
-
-        if (m_fakeInput->shouldUseFakeInput(key)) {
-            // Send this key over kwin-fake-input instead of input-method-v1 (true keyboard emulation)
-            return m_fakeInput->sendKeyPressed(key, pressed);
+        if (pressed && (!m_window || !m_window->isExposed())) {
+            return false;
         }
 
         const uint sym = keysymForQtKey(key);
@@ -247,8 +295,24 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
             return false;
         }
 
-        const uint timestamp = currentTimestamp();
-        m_input.keysym(timestamp, sym, pressed ? InputPlugin::Pressed : InputPlugin::Released, 0);
+        Qt::KeyboardModifiers modifiers;
+        for (const int pressedKey : m_vkbdInputBackend->pressedKeys()) {
+            if (pressedKey != key || pressed) {
+                modifiers |= modifierForQtKey(pressedKey);
+            }
+        }
+        if (pressed) {
+            modifiers |= modifierForQtKey(key);
+        }
+        m_input.keysym(currentTimestamp(), sym, pressed ? InputPlugin::Pressed : InputPlugin::Released, modifiers);
+        if (!pressed && modifierForQtKey(key) == Qt::NoModifier && key != KeyCodes::KeyFn) {
+            const auto pressedKeys = m_vkbdInputBackend->pressedKeys();
+            for (const int pressedKey : pressedKeys) {
+                if (modifierForQtKey(pressedKey) != Qt::NoModifier || pressedKey == KeyCodes::KeyFn) {
+                    m_vkbdInputBackend->sendKeyPressed(pressedKey, false);
+                }
+            }
+        }
         return true;
     };
 

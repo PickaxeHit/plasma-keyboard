@@ -76,7 +76,7 @@ public:
         Pressed = 1,
         Repeated = 2
     };
-    void keysym(uint timestamp, uint sym, KeyState state, uint modifiers);
+    void keysym(uint timestamp, uint sym, KeyState state, Qt::KeyboardModifiers modifiers);
     void key(KeyState state, quint32 scancode);
 
     ContentHint contentHint() const;
