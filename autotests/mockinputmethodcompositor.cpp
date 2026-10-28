@@ -33,6 +33,7 @@
 
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
+#include <qlogging.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <xkbcommon/xkbcommon-compose.h>
@@ -392,21 +393,21 @@ protected:
             return;
         }
 
-        m_surfaceResource = surface;
-        m_surface = wlSurface;
         connect(wlSurface, &QWaylandSurface::surfaceDestroyed, this, [this, wlSurface] {
             if (m_surface == wlSurface) {
                 m_surface = nullptr;
                 m_surfaceResource = nullptr;
             }
         });
-        connect(wlSurface, &QWaylandSurface::damaged, this, [this, wlSurface] {
+        connect(wlSurface, &QWaylandSurface::damaged, this, [wlSurface] {
             wlSurface->frameStarted();
             wlSurface->sendFrameCallbacks();
         });
 
         auto *panelSurface = new InputPanelSurface(wlSurface, resource->client(), id, resource->version(), this);
-        connect(panelSurface, &InputPanelSurface::toplevelRequested, this, [this] {
+        connect(panelSurface, &InputPanelSurface::toplevelRequested, this, [this, surface, wlSurface] {
+            m_surfaceResource = surface;
+            m_surface = wlSurface;
             ++m_toplevelPanelCount;
             Q_EMIT toplevelPanelRequested();
         });
@@ -1077,6 +1078,59 @@ private Q_SLOTS:
         QCOMPARE(keySpy.at(secondLast).at(1).toUInt(), static_cast<uint32_t>(WL_KEYBOARD_KEY_STATE_PRESSED));
         QCOMPARE(keySpy.at(last).at(0).toUInt(), static_cast<uint32_t>(KEY_A));
         QCOMPARE(keySpy.at(last).at(1).toUInt(), static_cast<uint32_t>(WL_KEYBOARD_KEY_STATE_RELEASED));
+    }
+
+    /**
+     * Test that the OSK still works after the overlay has been shown (e.g. for diacritics).
+     */
+    void testOSKWorksAfterOverlay()
+    {
+        // Ensure the OSK surface is visible and has content before we start.
+        if (!m_inputPanel->surface()) {
+            QSignalSpy surfaceSpy(m_inputPanel.get(), &InputPanelV1::inputPanelSurfaceCreated);
+            QVERIFY(surfaceSpy.wait());
+        }
+        QVERIFY(m_inputPanel->surface());
+        QTRY_VERIFY_WITH_TIMEOUT(m_inputPanel->surface()->hasContent(), 5000);
+
+        const QSize surfaceSize = inputPanelSurfaceSize();
+        const qreal keyboardHeight = std::max(surfaceSize.height() * 0.3, 150.0);
+        constexpr int keysPerRow = 10, numberOfRows = 4;
+        const qreal keyWidth = static_cast<qreal>(surfaceSize.width()) / keysPerRow;
+        const QPointF qKeyCenter(keyWidth / 2, surfaceSize.height() - keyboardHeight + keyboardHeight / (numberOfRows * 2));
+
+        // Verify the OSK works before showing the overlay.
+        QSignalSpy firstTapSpy(m_inputMethod->context(), &InputMethodContext::commitStringChanged);
+        tapInputPanel(qKeyCenter);
+        QTRY_COMPARE(firstTapSpy.count(), 1);
+        QCOMPARE(firstTapSpy.first().first().toString(), QStringLiteral("q"));
+
+        // Long-press a key to trigger the overlay panel with diacritics.
+        QSignalSpy overlaySpy(m_inputPanel.get(), &InputPanelV1::overlayPanelRequested);
+        sendKey(KEY_A, 2000);
+        QVERIFY(overlaySpy.count() || overlaySpy.wait());
+
+        // Select the first diacritic option (à) from the overlay panel.
+        QSignalSpy overlayCommitSpy(m_inputMethod->context(), &InputMethodContext::commitStringChanged);
+        sendKey(KEY_1, 10);
+        QTRY_COMPARE(overlayCommitSpy.count(), 1);
+        QCOMPARE(overlayCommitSpy.first().first().toString(), QStringLiteral("à"));
+
+        if (!m_inputPanel->surface()) {
+            QSignalSpy surfaceSpy(m_inputPanel.get(), &InputPanelV1::inputPanelSurfaceCreated);
+            QVERIFY(surfaceSpy.wait());
+        }
+
+        auto *surface = m_inputPanel->surface();
+        QVERIFY(surface);
+        QTRY_VERIFY_WITH_TIMEOUT(surface->hasContent(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(!inputPanelSurfaceSize().isEmpty(), 5000);
+
+        // Verify the on-screen keyboard still functions correctly after being shown again.
+        QSignalSpy secondTapSpy(m_inputMethod->context(), &InputMethodContext::commitStringChanged);
+        tapInputPanel(qKeyCenter);
+        QTRY_COMPARE(secondTapSpy.count(), 1);
+        QCOMPARE(secondTapSpy.first().first().toString(), QStringLiteral("q"));
     }
 
     void cleanupTestCase()
