@@ -94,7 +94,6 @@ int main(int argc, char **argv)
             exit(1);
         }
 
-        window->requestActivate();
         // Rely on InputMethodConnection to show the window once there is input context
     });
     view.load(QUrl(QStringLiteral("qrc:/qt/qml/org/kde/plasma/keyboard/main.qml")));
