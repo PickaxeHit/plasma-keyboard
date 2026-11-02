@@ -7,7 +7,7 @@
 
 The plasma-keyboard is a virtual keyboard and input engine designed to integrate in Plasma.
 
-It uses the input-method-v1 Wayland protocol to communicate with the compositor to function as an input method. It also can leverage KWin's fake-input protocol in order to emulate keyboard keys (ex. Meta, Ctrl).
+It uses the input-method-v1 Wayland protocol to communicate with the compositor, sending both text and keyboard keys (ex. Meta, Ctrl) through the same input method connection.
 
 #### Install using the flatpak nightly repository
 
