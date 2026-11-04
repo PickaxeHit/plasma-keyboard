@@ -16,7 +16,7 @@
 #include "inputplugin.h"
 
 class OverlayController;
-class KWinFakeInput;
+class KWinEmulatedInput;
 class VirtualKeyboardContext;
 class VkbdWaylandInputBackend;
 
@@ -71,7 +71,7 @@ private:
     InputPlugin m_input;
     VkbdWaylandInputBackend *m_vkbdInputBackend = nullptr;
     VirtualKeyboardContext *m_virtualKeyboardContext = nullptr;
-    KWinFakeInput *m_fakeInput = nullptr;
+    KWinEmulatedInput *m_emulatedInput = nullptr;
     OverlayController *m_overlayController = nullptr;
     QPointer<QWindow> m_window;
     bool m_hidden = false;

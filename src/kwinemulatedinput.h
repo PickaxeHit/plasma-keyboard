@@ -9,20 +9,21 @@
 #include <QObject>
 
 class VkbdWaylandInputBackend;
+class EiKeyboard;
 
 /**
- * Sends keys unsupported by the input method protocol through KWin's fake input protocol.
+ * Sends keys unsupported by the input method protocol through KWin's EIS interface.
  *
  * Keys sent here effectively emulate the keyboard.
  */
-class KWinFakeInput : public QObject
+class KWinEmulatedInput : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit KWinFakeInput(VkbdWaylandInputBackend *backend, QObject *parent = nullptr);
+    explicit KWinEmulatedInput(VkbdWaylandInputBackend *backend, QObject *parent = nullptr);
 
-    bool shouldUseFakeInput(int key) const;
+    bool shouldEmulateKey(int key) const;
     bool sendKeyPressed(int key, bool pressed);
 
 private:
@@ -30,8 +31,8 @@ private:
     bool isModifier(int key) const;
     bool supportsKey(int key) const;
     void clearPressedModifiers();
-    void sendFakeKeyboardKey(int key, bool pressed);
+    void sendKeyboardKey(int key, bool pressed);
 
-    QObject *m_fakeInput = nullptr;
+    EiKeyboard *m_eiKeyboard = nullptr;
     VkbdWaylandInputBackend *m_backend = nullptr;
 };
