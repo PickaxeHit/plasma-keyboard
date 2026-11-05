@@ -89,6 +89,11 @@ public:
         return m_context.get();
     }
 
+    Keyboard *keyboard() const
+    {
+        return m_keyboard.get();
+    }
+
 Q_SIGNALS:
     void contextChanged();
     void surroundingTextChanged();

@@ -128,6 +128,21 @@ Keyboard::~Keyboard()
     //        release();
 }
 
+xkb_context *Keyboard::xkb_context()
+{
+    return mXkbContext.get();
+}
+
+xkb_keymap *Keyboard::xkb_keymap()
+{
+    return mXkbKeymap.get();
+}
+
+xkb_state *Keyboard::xkb_state()
+{
+    return mXkbState.get();
+}
+
 void Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
     mKeymapFormat = format;

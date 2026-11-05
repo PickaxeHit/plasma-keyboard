@@ -12,6 +12,7 @@
 #include "inputmethod_p.h"
 #include "inputmethodhints.h"
 #include "kwinfakeinput.h"
+#include "layoutswitch.h"
 #include "plasmakeyboardsettings.h"
 #include "virtualkeyboardcontext.h"
 #include "vkbdwaylandinputbackend.h"
@@ -89,6 +90,7 @@ InputMethodConnection::InputMethodConnection(QObject *parent)
     , m_virtualKeyboardContext(new VirtualKeyboardContext(m_vkbdInputBackend, this))
     , m_fakeInput(new KWinFakeInput(m_vkbdInputBackend, this))
     , m_overlayController(new OverlayController(&m_input, this))
+    , m_layoutSwitch(new LayoutSwitch(&m_input, this))
 {
     m_input.setGrabbing(true);
 
