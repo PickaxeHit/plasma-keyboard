@@ -33,6 +33,114 @@
                 "FormFactors": [
                     "desktop"
                 ]
+            },
+            {
+                "Id": "shuangpin-zrm",
+                "Name": "双拼（自然码）",
+                "File": "ShuangpinZrm.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-zrm",
+                "Name": "双拼（自然码，电脑）",
+                "File": "DesktopShuangpinZrm.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "shuangpin-ms",
+                "Name": "双拼（微软）",
+                "File": "ShuangpinMs.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-ms",
+                "Name": "双拼（微软，电脑）",
+                "File": "DesktopShuangpinMs.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "shuangpin-ziguang",
+                "Name": "双拼（紫光）",
+                "File": "ShuangpinZiguang.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-ziguang",
+                "Name": "双拼（紫光，电脑）",
+                "File": "DesktopShuangpinZiguang.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "shuangpin-abc",
+                "Name": "双拼（智能ABC）",
+                "File": "ShuangpinAbc.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-abc",
+                "Name": "双拼（智能ABC，电脑）",
+                "File": "DesktopShuangpinAbc.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "shuangpin-pyjj",
+                "Name": "双拼（拼音加加）",
+                "File": "ShuangpinPyjj.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-pyjj",
+                "Name": "双拼（拼音加加，电脑）",
+                "File": "DesktopShuangpinPyjj.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "shuangpin-xhe",
+                "Name": "双拼（小鹤）",
+                "File": "ShuangpinXhe.qml",
+                "FormFactors": [
+                    "phone",
+                    "mediacenter",
+                    "desktop"
+                ]
+            },
+            {
+                "Id": "desktop-shuangpin-xhe",
+                "Name": "双拼（小鹤，电脑）",
+                "File": "DesktopShuangpinXhe.qml",
+                "FormFactors": [
+                    "desktop"
+                ]
             }
         ]
     }

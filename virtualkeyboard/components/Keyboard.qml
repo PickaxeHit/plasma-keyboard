@@ -103,7 +103,8 @@ Item {
     // Some text composers have language specific options that are set in the keyboard settings
     function applyTextComposerSettings() {
         const composer = root.textComposer;
-        if (composer && composer.pinyinScheme !== undefined) {
+        // Layouts for a specific scheme (e.g. "double pinyin (Xiaohe)") pin their own scheme
+        if (composer && composer.pinyinScheme !== undefined && !composer.pinyinSchemeLocked) {
             composer.pinyinScheme = PlasmaKeyboardSettings.pinyinScheme;
         }
     }

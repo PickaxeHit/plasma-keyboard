@@ -30,6 +30,11 @@ class PinyinTextComposer : public AbstractTextComposer
      * Whether the current scheme needs a ';' key (the final "ing" in the Microsoft and Ziguang schemes).
      */
     Q_PROPERTY(bool semicolonKeyRequired READ semicolonKeyRequired NOTIFY pinyinSchemeChanged)
+    /**
+     * When true, pinyinScheme is fixed by the layout that created this composer (for example the layout for
+     * one double pinyin scheme) and the keyboard scheme setting is not applied to it.
+     */
+    Q_PROPERTY(bool pinyinSchemeLocked READ pinyinSchemeLocked WRITE setPinyinSchemeLocked)
     QML_NAMED_ELEMENT(PinyinTextComposer)
 
 public:
@@ -41,6 +46,8 @@ public:
     void setPinyinScheme(const QString &scheme);
     bool doublePinyin() const;
     bool semicolonKeyRequired() const;
+    bool pinyinSchemeLocked() const;
+    void setPinyinSchemeLocked(bool locked);
     bool autoCapitalizationSupported() const override;
     bool setTextCase(TextCase textCase) override;
     bool keyEvent(Qt::Key key, const QString &text) override;
@@ -55,6 +62,7 @@ private:
     QString transformedText(const QString &text) const;
 
     LibPinyinAdapter m_pinyin;
+    bool m_pinyinSchemeLocked = false;
     TextCase m_textCase = TextCase::Lower;
     QString m_inputMode = QStringLiteral("pinyin");
 

@@ -63,6 +63,16 @@ bool PinyinTextComposer::semicolonKeyRequired() const
     return m_pinyin.usesSemicolon();
 }
 
+bool PinyinTextComposer::pinyinSchemeLocked() const
+{
+    return m_pinyinSchemeLocked;
+}
+
+void PinyinTextComposer::setPinyinSchemeLocked(bool locked)
+{
+    m_pinyinSchemeLocked = locked;
+}
+
 bool PinyinTextComposer::autoCapitalizationSupported() const
 {
     return false;

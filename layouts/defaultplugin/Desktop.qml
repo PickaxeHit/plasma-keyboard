@@ -15,6 +15,10 @@ KeyboardLayout {
     property var inputModeKeyModes: []
     readonly property bool inputModeKeyVisible: inputModeKeyModes.length > 0
     property var keyTextMap: ({})
+    // The Microsoft and Ziguang double pinyin schemes use ';' for the final "ing", and do not use the
+    // apostrophe to separate syllables, so show ';' instead of the apostrophe key while they are active.
+    readonly property var pinyinComposer: inputEngine ? inputEngine.textComposer : null
+    readonly property bool semicolonKeyVisible: pinyinComposer ? (pinyinComposer.doublePinyin && pinyinComposer.semicolonKeyRequired) : false
     property var shiftedKeyTextMap: ({})
     property bool sendShiftDirectKeyEvents: true
     function keyText(text) {
@@ -60,7 +64,12 @@ KeyboardLayout {
         Key { key: Qt.Key_J; text: root.keyText("j") }
         Key { key: Qt.Key_K; text: root.keyText("k") }
         Key { key: Qt.Key_L; text: root.keyText("l"); alternativeKeys: "ĺŀłļľl" }
-        Key { key: Qt.Key_Apostrophe; text: root.keyText("'"); alternativeKeys: "\""; smallText: "\""}
+        Key {
+            key: root.semicolonKeyVisible ? Qt.Key_Semicolon : Qt.Key_Apostrophe
+            text: root.semicolonKeyVisible ? ";" : root.keyText("'")
+            alternativeKeys: root.semicolonKeyVisible ? ";:" : "'\""
+            smallText: root.semicolonKeyVisible ? ":" : "\""
+        }
         EnterKey { weight: root.defaultKeyWeight * 1.5 }
     }
 
