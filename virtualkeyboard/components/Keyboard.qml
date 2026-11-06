@@ -100,8 +100,28 @@ Item {
         when: root.inputEngine !== null && root.textComposer !== null
     }
 
+    // Some text composers have language specific options that are set in the keyboard settings
+    function applyTextComposerSettings() {
+        const composer = root.textComposer;
+        if (composer && composer.pinyinScheme !== undefined) {
+            composer.pinyinScheme = PlasmaKeyboardSettings.pinyinScheme;
+        }
+    }
+
+    onTextComposerChanged: applyTextComposerSettings()
+
+    Connections {
+        target: PlasmaKeyboardSettings
+        function onPinyinSchemeChanged() {
+            root.applyTextComposerSettings();
+        }
+    }
+
     onPanelScaleHintChanged: updateScaleHint()
-    Component.onCompleted: updateScaleHint()
+    Component.onCompleted: {
+        updateScaleHint();
+        applyTextComposerSettings();
+    }
 
     Loader {
         id: layoutDefinitionLoader

@@ -34,6 +34,35 @@ void PinyinTextComposer::setInputMode(const QString &inputMode)
     Q_EMIT inputModeChanged();
 }
 
+QString PinyinTextComposer::pinyinScheme() const
+{
+    return LibPinyinAdapter::schemeId(m_pinyin.scheme());
+}
+
+void PinyinTextComposer::setPinyinScheme(const QString &scheme)
+{
+    LibPinyinAdapter::Scheme newScheme;
+    if (!LibPinyinAdapter::schemeFromId(scheme, newScheme) || newScheme == m_pinyin.scheme()) {
+        return;
+    }
+
+    // The keys typed so far mean something different in the new scheme, so finish the current composition first
+    commitCurrentSelection();
+    reset();
+    m_pinyin.setScheme(newScheme);
+    Q_EMIT pinyinSchemeChanged();
+}
+
+bool PinyinTextComposer::doublePinyin() const
+{
+    return m_pinyin.isDoublePinyin();
+}
+
+bool PinyinTextComposer::semicolonKeyRequired() const
+{
+    return m_pinyin.usesSemicolon();
+}
+
 bool PinyinTextComposer::autoCapitalizationSupported() const
 {
     return false;

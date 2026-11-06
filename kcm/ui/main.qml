@@ -104,5 +104,25 @@ KCM.SimpleKCM {
 
             onValueChanged: kcm.plasmaKeyboardSettings.diacriticsHoldThresholdMs = value
         }
+
+        QQC2.ComboBox {
+            id: pinyinSchemeComboBox
+            Kirigami.FormData.label: i18n("Chinese pinyin input:")
+
+            textRole: "text"
+            valueRole: "value"
+            model: [
+                { value: "full", text: i18n("Full pinyin") },
+                { value: "zrm", text: i18n("Double pinyin (Ziranma)") },
+                { value: "ms", text: i18n("Double pinyin (Microsoft)") },
+                { value: "ziguang", text: i18n("Double pinyin (Ziguang)") },
+                { value: "abc", text: i18n("Double pinyin (Smart ABC)") },
+                { value: "pyjj", text: i18n("Double pinyin (Pinyin Plus Plus)") },
+                { value: "xhe", text: i18n("Double pinyin (Xiaohe)") }
+            ]
+
+            currentIndex: Math.max(0, indexOfValue(kcm.plasmaKeyboardSettings.pinyinScheme))
+            onActivated: kcm.plasmaKeyboardSettings.pinyinScheme = currentValue
+        }
     }
 }

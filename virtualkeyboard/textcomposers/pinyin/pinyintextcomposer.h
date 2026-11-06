@@ -16,6 +16,20 @@ class PinyinTextComposer : public AbstractTextComposer
 {
     Q_OBJECT
     Q_PROPERTY(QString inputMode READ inputMode WRITE setInputMode NOTIFY inputModeChanged)
+    /**
+     * How typed letters map to pinyin: "full" (full pinyin, the default), or a double pinyin (shuangpin) scheme:
+     * "zrm" (Ziranma), "ms" (Microsoft), "ziguang", "abc" (Smart ABC), "pyjj" (Pinyin Plus Plus) or "xhe" (Xiaohe).
+     * Unknown values are ignored. Changing it commits any composition in progress.
+     */
+    Q_PROPERTY(QString pinyinScheme READ pinyinScheme WRITE setPinyinScheme NOTIFY pinyinSchemeChanged)
+    /**
+     * Whether the current scheme is a double pinyin scheme (each syllable is two keys, and ' is not used).
+     */
+    Q_PROPERTY(bool doublePinyin READ doublePinyin NOTIFY pinyinSchemeChanged)
+    /**
+     * Whether the current scheme needs a ';' key (the final "ing" in the Microsoft and Ziguang schemes).
+     */
+    Q_PROPERTY(bool semicolonKeyRequired READ semicolonKeyRequired NOTIFY pinyinSchemeChanged)
     QML_NAMED_ELEMENT(PinyinTextComposer)
 
 public:
@@ -23,6 +37,10 @@ public:
     ~PinyinTextComposer() override;
     QString inputMode() const;
     void setInputMode(const QString &inputMode);
+    QString pinyinScheme() const;
+    void setPinyinScheme(const QString &scheme);
+    bool doublePinyin() const;
+    bool semicolonKeyRequired() const;
     bool autoCapitalizationSupported() const override;
     bool setTextCase(TextCase textCase) override;
     bool keyEvent(Qt::Key key, const QString &text) override;
@@ -42,4 +60,5 @@ private:
 
 Q_SIGNALS:
     void inputModeChanged();
+    void pinyinSchemeChanged();
 };

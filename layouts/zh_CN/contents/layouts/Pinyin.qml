@@ -21,6 +21,12 @@ KeyboardLayoutDefinition {
 
         readonly property real functionKeyWeight: defaultKeyWeight * 1.5
 
+        // Double pinyin: some schemes need ';' as a key, and syllables are never separated with '
+        readonly property var pinyinComposer: inputEngine ? inputEngine.textComposer : null
+        readonly property bool doublePinyin: pinyinComposer?.doublePinyin ?? false
+        readonly property bool semicolonKeyVisible: pinyinComposer?.semicolonKeyRequired ?? false
+        readonly property bool apostropheKeyVisible: !doublePinyin && !!inputEngine && inputEngine.preeditText.length > 0
+
         KeyboardRow {
             Key { key: Qt.Key_Q; text: "q"; alternativeKeys: "1"; smallText: "1"}
             Key { key: Qt.Key_W; text: "w"; alternativeKeys: "2"; smallText: "2"}
@@ -35,7 +41,7 @@ KeyboardLayoutDefinition {
         }
 
         KeyboardRow {
-            FillerKey { weight: defaultKeyWeight / 2 }
+            FillerKey { weight: defaultKeyWeight / 2; visible: !root.semicolonKeyVisible }
             Key { key: Qt.Key_A; text: "a" }
             Key { key: Qt.Key_S; text: "s" }
             Key { key: Qt.Key_D; text: "d" }
@@ -45,17 +51,18 @@ KeyboardLayoutDefinition {
             Key { key: Qt.Key_J; text: "j" }
             Key { key: Qt.Key_K; text: "k" }
             Key { key: Qt.Key_L; text: "l" }
-            FillerKey { weight: defaultKeyWeight / 2 }
+            Key { key: Qt.Key_Semicolon; text: ";"; visible: root.semicolonKeyVisible }
+            FillerKey { weight: defaultKeyWeight / 2; visible: !root.semicolonKeyVisible }
         }
 
         KeyboardRow {
             ShiftKey {
                 weight: functionKeyWeight
-                visible: !inputEngine || inputEngine.preeditText.length === 0
+                visible: !root.apostropheKeyVisible
             }
             Key {
                 weight: functionKeyWeight
-                visible: inputEngine && inputEngine.preeditText.length > 0
+                visible: root.apostropheKeyVisible
                 key: Qt.Key_Apostrophe
                 text: "'"
             }

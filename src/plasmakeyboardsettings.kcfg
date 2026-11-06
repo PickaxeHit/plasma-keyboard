@@ -50,5 +50,9 @@
             <max>1500</max>
             <default>600</default>
         </entry>
+        <entry key="pinyinScheme" type="String">
+            <label>How letters are mapped to pinyin in Chinese pinyin input: "full", or a double pinyin scheme ("zrm", "ms", "ziguang", "abc", "pyjj", "xhe").</label>
+            <default>full</default>
+        </entry>
     </group>
 </kcfg>

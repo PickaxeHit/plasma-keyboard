@@ -16,6 +16,46 @@
 
 static uint CANDIDATES_LIMIT = 64;
 
+namespace
+{
+struct SchemeInfo {
+    LibPinyinAdapter::Scheme scheme;
+    const char *id;
+};
+
+constexpr SchemeInfo SCHEMES[] = {
+    {LibPinyinAdapter::Scheme::Full, "full"},
+    {LibPinyinAdapter::Scheme::Ziranma, "zrm"},
+    {LibPinyinAdapter::Scheme::Microsoft, "ms"},
+    {LibPinyinAdapter::Scheme::Ziguang, "ziguang"},
+    {LibPinyinAdapter::Scheme::SmartAbc, "abc"},
+    {LibPinyinAdapter::Scheme::PinyinPlusPlus, "pyjj"},
+    {LibPinyinAdapter::Scheme::Xiaohe, "xhe"},
+};
+
+// Only meaningful for double pinyin schemes
+DoublePinyinScheme libpinyinDoubleScheme(LibPinyinAdapter::Scheme scheme)
+{
+    switch (scheme) {
+    case LibPinyinAdapter::Scheme::Ziranma:
+        return DOUBLE_PINYIN_ZRM;
+    case LibPinyinAdapter::Scheme::Microsoft:
+        return DOUBLE_PINYIN_MS;
+    case LibPinyinAdapter::Scheme::Ziguang:
+        return DOUBLE_PINYIN_ZIGUANG;
+    case LibPinyinAdapter::Scheme::SmartAbc:
+        return DOUBLE_PINYIN_ABC;
+    case LibPinyinAdapter::Scheme::PinyinPlusPlus:
+        return DOUBLE_PINYIN_PYJJ;
+    case LibPinyinAdapter::Scheme::Xiaohe:
+        return DOUBLE_PINYIN_XHE;
+    case LibPinyinAdapter::Scheme::Full:
+        break;
+    }
+    return DOUBLE_PINYIN_DEFAULT;
+}
+}
+
 static pinyin_context_t *sharedPinyinContext()
 {
     static pinyin_context_t *context = []() -> pinyin_context_t * {
@@ -45,6 +85,51 @@ LibPinyinAdapter::~LibPinyinAdapter()
     if (m_instance) {
         pinyin_free_instance(m_instance);
     }
+}
+
+QString LibPinyinAdapter::schemeId(Scheme scheme)
+{
+    for (const SchemeInfo &info : SCHEMES) {
+        if (info.scheme == scheme) {
+            return QString::fromLatin1(info.id);
+        }
+    }
+    return QStringLiteral("full");
+}
+
+bool LibPinyinAdapter::schemeFromId(const QString &id, Scheme &scheme)
+{
+    for (const SchemeInfo &info : SCHEMES) {
+        if (id == QLatin1String(info.id)) {
+            scheme = info.scheme;
+            return true;
+        }
+    }
+    return false;
+}
+
+LibPinyinAdapter::Scheme LibPinyinAdapter::scheme() const
+{
+    return m_scheme;
+}
+
+void LibPinyinAdapter::setScheme(Scheme scheme)
+{
+    if (m_scheme == scheme) {
+        return;
+    }
+    reset();
+    m_scheme = scheme;
+}
+
+bool LibPinyinAdapter::isDoublePinyin() const
+{
+    return m_scheme != Scheme::Full;
+}
+
+bool LibPinyinAdapter::usesSemicolon() const
+{
+    return m_scheme == Scheme::Microsoft || m_scheme == Scheme::Ziguang;
 }
 
 bool LibPinyinAdapter::appendText(const QString &text)
@@ -125,9 +210,23 @@ QString LibPinyinAdapter::takeCommitText(int index)
     return commitText;
 }
 
-bool LibPinyinAdapter::acceptsText(const QString &text)
+bool LibPinyinAdapter::acceptsText(const QString &text) const
 {
-    return text.size() == 1 && (text.at(0).isLetter() || text == QStringLiteral("'"));
+    if (text.size() != 1) {
+        return false;
+    }
+    if (text.at(0).isLetter()) {
+        return true;
+    }
+    if (text == QStringLiteral("'")) {
+        // Syllable separator. Double pinyin syllables always take two keys, and libpinyin's double pinyin parser stops at it.
+        return !isDoublePinyin();
+    }
+    if (text == QStringLiteral(";")) {
+        // In schemes where ';' is a final, it can only continue a syllable. It can't start one, so leave it as punctuation otherwise.
+        return usesSemicolon() && !m_surface.isEmpty();
+    }
+    return false;
 }
 
 void LibPinyinAdapter::refreshLookup()
@@ -161,7 +260,15 @@ bool LibPinyinAdapter::rebuildLookup()
     }
 
     const QByteArray surfaceUtf8 = m_surface.toUtf8();
-    pinyin_parse_more_full_pinyins(m_instance, surfaceUtf8.toLower().constData());
+    if (isDoublePinyin()) {
+        // The context is shared, so always set the scheme rather than assuming what it was last set to
+        if (!pinyin_set_double_pinyin_scheme(context, libpinyinDoubleScheme(m_scheme))) {
+            return false;
+        }
+        pinyin_parse_more_double_pinyins(m_instance, surfaceUtf8.toLower().constData());
+    } else {
+        pinyin_parse_more_full_pinyins(m_instance, surfaceUtf8.toLower().constData());
+    }
     const qsizetype parsedLength = qsizetype(pinyin_get_parsed_input_length(m_instance));
     const QString unparsedSuffix = QString::fromUtf8(surfaceUtf8.mid(parsedLength)); // Hold suffix if we are doing partial match (ex. 你hao)
     pinyin_guess_sentence(m_instance);
